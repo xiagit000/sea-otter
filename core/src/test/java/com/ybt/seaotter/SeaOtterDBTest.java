@@ -14,13 +14,14 @@ import com.ybt.seaotter.source.impl.starrocks.StarrocksConnector;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.List;
 
 public class SeaOtterDBTest {
 
     private SeaOtter seaOtter;
 
-    private SourceConnector source = new MysqlConnector()
+    private final SourceConnector source = new MysqlConnector()
             .setHost("172.16.2.47")
             .setPort(3306)
             .setUsername("saas_dba")
@@ -31,8 +32,8 @@ public class SeaOtterDBTest {
     @Before
     public void init() {
         SeaOtterConfig seaOtterConfig = SeaOtterConfig.builder()
-                .sparkOptions(new SparkOptions("172.16.2.46", 6066))
-                .flinkOptions(new FlinkOptions("172.16.2.46", 8081))
+                .sparkOptions(new SparkOptions("172.16.5.170", 6066))
+                .flinkOptions(new FlinkOptions("172.16.5.170", 8081))
                 .callback("http://192.168.10.5:9090/api/callback")
                 .build();
         seaOtter = SeaOtter.config(seaOtterConfig);
@@ -54,14 +55,14 @@ public class SeaOtterDBTest {
 //            .setSid("xe")
 //            .setDatabase("YBT")
 //            .setTable("ORACLE_USER");
-    private SourceConnector sink = new StarrocksConnector()
+    private final SourceConnector sink = new StarrocksConnector()
             .setHost("172.16.1.51")
             .setHttpPort(8080)
             .setRpcPort(9030)
             .setUsername("root")
             .setPassword("")
             .setDatabase("data_warehouse")
-            .setTable("oracle_user");
+            .setTable("sync_task");
 
     /**
      * 查询database
@@ -116,10 +117,26 @@ public class SeaOtterDBTest {
     }
 
     /**
-     * 实时同步任务
-     * @param seaOtter
+     * 上传jar包
      */
-    public void cdcJob(SeaOtter seaOtter) {
+    @Test
+    public void uploadJar() {
+        seaOtter.job().from(source).to(sink).CDCMode().uploadJar(new File("E:\\ybt\\sea-otter\\flink-job\\target\\flink-job-1.0-SNAPSHOT.jar"));
+    }
+
+    /**
+     * 列出可执行jar包
+     */
+    @Test
+    public void listJars() {
+        System.out.println(seaOtter.job().from(source).to(sink).CDCMode().listJars());
+    }
+
+    /**
+     * 实时同步任务
+     */
+    @Test
+    public void cdcJob() {
         System.out.println(seaOtter.job()
                 .tag("CDC123456") // 业务关联标签
                 .from(source).to(sink).CDCMode().submit());
@@ -199,7 +216,7 @@ public class SeaOtterDBTest {
 //        seaOtterTest.queryTable(seaOtter);
 //        seaOtterTest.queryColumns(seaOtter);
 //        seaOtterTest.preview(seaOtter);
-        seaOtterTest.cdcJob(seaOtter);
+//        seaOtterTest.cdcJob(seaOtter);
 //          seaOtterTest.batchJob(seaOtter);
 //        seaOtterTest.batchJobDetail(seaOtter);
 //        seaOtterTest.batchJobCancel(seaOtter);

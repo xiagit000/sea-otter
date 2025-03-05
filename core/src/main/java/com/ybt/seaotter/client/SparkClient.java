@@ -15,14 +15,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SparkClient {
-    private SourceConnector source;
-    private SourceConnector target;
-    private SparkOptions sparkOptions;
-    private String upsertColumn;
-    private String columnVal;
-    private String callbackUrl;
-    private String callbackTag;
-    private SparkRestClient sparkRestClient;
+    private final SourceConnector source;
+    private final SourceConnector target;
+    private final SparkOptions sparkOptions;
+    private final String upsertColumn;
+    private final String columnVal;
+    private final String callbackUrl;
+    private final String callbackTag;
+    private final SparkRestClient sparkRestClient;
+    private final static String SPARK_JARS_PATH = "/data/sftp/martechdata/upload/spark/jars";
 
     public SparkClient(SeaOtterBatchJob  seaOtterBatchJob) {
         this.source = seaOtterBatchJob.getSeaOtterSync().getSource();
@@ -53,10 +54,10 @@ public class SparkClient {
             args.add(String.format("--callback.tag %s", callbackTag));
             args.add(String.format("--source %s", source.getName()));
             String jarPath = source.getDataDefine(target).getDriverJar();
-            String driverJarPath = jarPath == null ? "" : String.format("file:///opt/jars/%s,", jarPath);
+            String driverJarPath = jarPath == null ? "" : String.format("file://%s/%s,", SPARK_JARS_PATH, jarPath);
             submissionId = sparkRestClient.prepareJobSubmit()
                     .appName(sparkOptions.getAppName())
-                    .appResource("file:///opt/jars/spark-job-1.0-SNAPSHOT.jar")
+                    .appResource(String.format("file://%s/spark-job-1.0-SNAPSHOT.jar", SPARK_JARS_PATH))
                     .mainClass("com.ybt.seaotter.BatchPipeline")
                     .appArgs(args)
                     .withProperties()
@@ -67,13 +68,13 @@ public class SparkClient {
                     .put("spark.executor.cores", "1")
                     .put("spark.jars",
                             driverJarPath +
-                                    "file:///opt/jars/mysql-connector-java-8.0.28.jar," +
-                                    "file:///opt/jars/starrocks-spark-connector-3.4_2.12-1.1.2.jar," +
-                                    "file:///opt/jars/commons-net-3.8.0.jar," +
-                                    "file:///opt/jars/fastjson-1.2.83.jar"
+                                    "file://" + SPARK_JARS_PATH + "/mysql-connector-java-8.0.28.jar," +
+                                    "file://" + SPARK_JARS_PATH + "/starrocks-spark-connector-3.4_2.12-1.1.2.jar," +
+                                    "file://" + SPARK_JARS_PATH + "/commons-net-3.8.0.jar," +
+                                    "file://" + SPARK_JARS_PATH + "/fastjson-1.2.83.jar"
                     )
-                    .put("spark.driver.extraClassPath", driverJarPath + "file:///opt/jars/mysql-connector-java-8.0.28.jar")
-                    .put("spark.executor.extraClassPath", driverJarPath + "file:///opt/jars/mysql-connector-java-8.0.28.jar")
+                    .put("spark.driver.extraClassPath", driverJarPath + "file://" + SPARK_JARS_PATH + "/mysql-connector-java-8.0.28.jar")
+                    .put("spark.executor.extraClassPath", driverJarPath + "file://" + SPARK_JARS_PATH + "/mysql-connector-java-8.0.28.jar")
                     .put("spark.executor.extraJavaOptions", "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED")
                     .put("spark.driver.extraJavaOptions", "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED")
                     .submit();
@@ -84,7 +85,7 @@ public class SparkClient {
     }
 
     public JobState detail(String jobId) {
-        JobStatusResponse jobStatusResponse = null;
+        JobStatusResponse jobStatusResponse;
         try {
             jobStatusResponse = sparkRestClient.checkJobStatus().withSubmissionIdFullResponse(jobId);
         } catch (FailedSparkRequestException e) {
@@ -117,7 +118,7 @@ public class SparkClient {
     }
 
     public Boolean cancel(String jobId) {
-        Boolean cancelResult;
+        boolean cancelResult;
         try {
             cancelResult = sparkRestClient.killJob().withSubmissionId(jobId);
         } catch (FailedSparkRequestException e) {

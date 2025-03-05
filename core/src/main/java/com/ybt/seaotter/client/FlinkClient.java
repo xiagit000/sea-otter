@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.nextbreakpoint.flinkclient.api.ApiException;
 import com.nextbreakpoint.flinkclient.api.ApiResponse;
 import com.nextbreakpoint.flinkclient.api.FlinkApi;
+import com.nextbreakpoint.flinkclient.model.JarListInfo;
 import com.nextbreakpoint.flinkclient.model.JarRunResponseBody;
 import com.nextbreakpoint.flinkclient.model.JarUploadResponseBody;
 import com.nextbreakpoint.flinkclient.model.JobDetailsInfo;
@@ -17,11 +18,12 @@ import java.io.File;
 import java.util.Arrays;
 
 public class FlinkClient {
-    private SourceConnector source;
-    private SourceConnector target;
-    private FlinkApi api;
-    private String callbackUrl;
-    private String tag;
+    private final SourceConnector source;
+    private final SourceConnector target;
+    private final FlinkApi api;
+    private final String callbackUrl;
+    private final String tag;
+    private final String JOB_NAME = "flink-job-1.0-SNAPSHOT.jar";
 
     public FlinkClient(SeaOtterJob job) {
         this.source = job.getSource();
@@ -34,9 +36,24 @@ public class FlinkClient {
         this.tag = job.getCallbackTag();
     }
 
+    public String listJars() {
+        try {
+            return JSON.toJSONString(api.listJars());
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public String submit() {
-//        JarListInfo jars = api.listJars();
-//        System.out.println(JSON.toJSONString(jars));
+        JarListInfo jars = null;
+        try {
+            jars = api.listJars();
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+        String jarId = jars.getFiles().stream().filter(e -> e.getName().equals(JOB_NAME)).findAny()
+                .orElseThrow(() -> new SeaOtterException("flink job not found")).getId();
+        System.out.println(JSON.toJSONString(jars));
         StringBuilder argsBuilder = new StringBuilder();
         argsBuilder.append(source.getFlinkArgs().concat(" ").concat(target.getFlinkArgs()));
         argsBuilder.append(String.format(" --callback.url %s", callbackUrl));
@@ -44,8 +61,10 @@ public class FlinkClient {
 
         JarRunResponseBody response = null;
         try {
-            JarUploadResponseBody result = api.uploadJar(new File("E:\\ybt\\sea-otter\\flink-job\\target\\flink-job-1.0-SNAPSHOT.jar"));
-            String jarId = Arrays.stream(result.getFilename().split("/")).reduce((a, b) -> b).get();
+//            JarUploadResponseBody result = api.uploadJar(new File("E:\\ybt\\sea-otter\\flink-job\\target\\flink-job-1.0-SNAPSHOT.jar"));
+//            String jarId = Arrays.stream(result.getFilename().split("/"))
+//                    .reduce((a, b) -> b)
+//                    .orElse(null);
             response = api.runJar(jarId,
                         true, null, argsBuilder.toString(), null,
                         "com.ybt.seaotter.CDCPipeline", null);
@@ -96,5 +115,13 @@ public class FlinkClient {
             throw new RuntimeException(e);
         }
         return response.getStatusCode() == 202;
+    }
+
+    public void uploadJar(File file) {
+        try {
+            api.uploadJar(file);
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
