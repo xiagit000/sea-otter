@@ -31,7 +31,7 @@ public class DmSqlHelper {
             }
         }
 
-        Pattern columnPattern = Pattern.compile("\"(\\w+)\"\\s+([A-Z]+(?:\\(\\d+(?:,\\d+)?\\))?)", Pattern.CASE_INSENSITIVE);
+        Pattern columnPattern = Pattern.compile("\"(\\w+)\"\\s+([A-Z]+(?:\\(\\d+(?:,\\d+)?\\))?)(?:,|\\))", Pattern.CASE_INSENSITIVE);
         Matcher columnMatcher = columnPattern.matcher(sql);
 
         List<ColumnRel> columns = new ArrayList<>();

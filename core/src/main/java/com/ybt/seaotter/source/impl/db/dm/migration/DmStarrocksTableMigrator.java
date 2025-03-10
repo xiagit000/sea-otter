@@ -61,6 +61,10 @@ public class DmStarrocksTableMigrator implements DataMigrator {
     }
 
     public String convertColumnType(String mysqlType) {
-        return mysqlType;
+        String type = mysqlType.toLowerCase();
+        if (type.startsWith("datetime")) {
+            return "datetime";
+        }
+        return type;
     }
 }
