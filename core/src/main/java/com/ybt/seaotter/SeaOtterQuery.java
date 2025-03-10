@@ -9,8 +9,8 @@ import com.ybt.seaotter.source.meta.file.DirMeta;
 
 public class SeaOtterQuery {
 
-    private SeaOtterConfig config;
-    private SourceConnector connector;
+    private final SeaOtterConfig config;
+    private final SourceConnector connector;
 
     public SeaOtterQuery(SeaOtterConfig config, SourceConnector sourceConnector) {
         this.config = config;

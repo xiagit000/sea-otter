@@ -23,7 +23,7 @@ public class SparkClient {
     private final String callbackUrl;
     private final String callbackTag;
     private final SparkRestClient sparkRestClient;
-    private final static String SPARK_JARS_PATH = "/data/sftp/martechdata/upload/spark/jars";
+    private final static String SPARK_JARS_PATH = "/opt/jars";
 
     public SparkClient(SeaOtterBatchJob  seaOtterBatchJob) {
         this.source = seaOtterBatchJob.getSeaOtterSync().getSource();
@@ -71,6 +71,7 @@ public class SparkClient {
                                     "file://" + SPARK_JARS_PATH + "/mysql-connector-java-8.0.28.jar," +
                                     "file://" + SPARK_JARS_PATH + "/starrocks-spark-connector-3.4_2.12-1.1.2.jar," +
                                     "file://" + SPARK_JARS_PATH + "/commons-net-3.8.0.jar," +
+                                    "file://" + SPARK_JARS_PATH + "/jsch-0.1.55.jar," +
                                     "file://" + SPARK_JARS_PATH + "/fastjson-1.2.83.jar"
                     )
                     .put("spark.driver.extraClassPath", driverJarPath + "file://" + SPARK_JARS_PATH + "/mysql-connector-java-8.0.28.jar")

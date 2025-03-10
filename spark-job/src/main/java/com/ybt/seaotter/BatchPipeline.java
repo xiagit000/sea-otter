@@ -4,21 +4,12 @@ import com.ybt.seaotter.common.JobCallback;
 import com.ybt.seaotter.common.enums.JobState;
 import com.ybt.seaotter.common.pojo.JobCallbackMessage;
 import com.ybt.seaotter.utils.DownloadUtils;
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
 import org.apache.parquet.Strings;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.scheduler.*;
 import org.apache.spark.sql.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class BatchPipeline {
     Long totalRecords = 0L;
@@ -140,12 +131,18 @@ public class BatchPipeline {
             }
             return reader.load();
         } else if (source.equals("FTP")) {
-            String fileName = argsMap.get("file.path").substring(argsMap.get("file.path").lastIndexOf("/") + 1);
+            String fileName = argsMap.get("ftp.path").substring(argsMap.get("ftp.path").lastIndexOf("/") + 1);
             String localFilePath = "/opt/bitnami/spark/tmp/download/".concat(argsMap.get("callback.tag")).concat("_").concat(fileName);
-            DownloadUtils.downloadFile(argsMap.get("file.host"), Integer.parseInt(argsMap.get("file.port")),
-                    argsMap.get("file.username"), argsMap.get("file.password"), argsMap.get("file.path"), localFilePath);
+            DownloadUtils.downloadByFtp(argsMap.get("ftp.host"), Integer.parseInt(argsMap.get("ftp.port")),
+                    argsMap.get("ftp.username"), argsMap.get("ftp.password"), argsMap.get("ftp.path"), localFilePath);
             return spark.read().option("header", "true").csv(localFilePath);
-        }else {
+        } else if (source.equals("SFTP")) {
+            String fileName = argsMap.get("sftp.path").substring(argsMap.get("sftp.path").lastIndexOf("/") + 1);
+            String localFilePath = "/opt/bitnami/spark/tmp/download/".concat(argsMap.get("callback.tag")).concat("_").concat(fileName);
+            DownloadUtils.downloadBySftp(argsMap.get("sftp.host"), Integer.parseInt(argsMap.get("sftp.port")),
+                    argsMap.get("sftp.username"), argsMap.get("sftp.password"), argsMap.get("sftp.path"), localFilePath);
+            return spark.read().option("header", "true").csv(localFilePath);
+        } else {
             throw new RuntimeException("source options happened error");
         }
     }

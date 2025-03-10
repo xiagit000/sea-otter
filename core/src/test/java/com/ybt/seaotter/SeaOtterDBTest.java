@@ -7,10 +7,8 @@ import com.ybt.seaotter.config.FlinkOptions;
 import com.ybt.seaotter.config.SeaOtterConfig;
 import com.ybt.seaotter.config.SparkOptions;
 import com.ybt.seaotter.source.connector.SourceConnector;
-import com.ybt.seaotter.source.impl.dm.DmConnector;
-import com.ybt.seaotter.source.impl.mysql.MysqlConnector;
-import com.ybt.seaotter.source.impl.oracle.OracleConnector;
-import com.ybt.seaotter.source.impl.starrocks.StarrocksConnector;
+import com.ybt.seaotter.source.impl.db.mysql.MysqlConnector;
+import com.ybt.seaotter.source.impl.db.starrocks.StarrocksConnector;
 import org.junit.Before;
 import org.junit.Test;
 

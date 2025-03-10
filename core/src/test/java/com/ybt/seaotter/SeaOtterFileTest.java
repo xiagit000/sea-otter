@@ -7,9 +7,10 @@ import com.ybt.seaotter.common.enums.TransmissionMode;
 import com.ybt.seaotter.config.FlinkOptions;
 import com.ybt.seaotter.config.SeaOtterConfig;
 import com.ybt.seaotter.config.SparkOptions;
+import com.ybt.seaotter.source.builder.FtpConnectorBuilder;
 import com.ybt.seaotter.source.connector.SourceConnector;
-import com.ybt.seaotter.source.impl.file.FileConnector;
-import com.ybt.seaotter.source.impl.starrocks.StarrocksConnector;
+import com.ybt.seaotter.source.impl.file.ftp.FtpConnector;
+import com.ybt.seaotter.source.impl.db.starrocks.StarrocksConnector;
 import com.ybt.seaotter.source.pojo.FileObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,29 +39,41 @@ public class SeaOtterFileTest {
         seaOtter = SeaOtter.config(seaOtterConfig);
     }
 
-    private SourceConnector source = new FileConnector()
-            .setHost("172.27.228.50")
-            .setPort(21)
-            .setUsername("root")
-            .setPassword("root")
-            .setProtocol("ftp")
+//    private final SourceConnector source = FtpConnectorBuilder
+//            .builder()
+//            .setHost("172.27.228.50")
+//            .setPort(21)
+//            .setUsername("root")
+//            .setPassword("root")
+//            .setProtocol("ftp")
+//            .setSeparator(",")
+//            .setPath("/output1.csv")
+//            .build();
+    private final SourceConnector source = FtpConnectorBuilder
+            .builder()
+            .setHost("172.16.5.170")
+            .setPort(12222)
+            .setUsername("martechdata")
+            .setPassword("Ycb@martech789")
+            .setProtocol("sftp")
             .setSeparator(",")
-            .setPath("/output1.csv");
-    private SourceConnector sink = new StarrocksConnector()
+            .setPath("/upload/output1.csv")
+            .build();
+    private final SourceConnector sink = new StarrocksConnector()
             .setHost("172.16.1.51")
             .setHttpPort(8080)
             .setRpcPort(9030)
             .setUsername("root")
             .setPassword("")
             .setDatabase("data_warehouse")
-            .setTable("product_sample");
+            .setTable("product_sample_01");
 
     /**
      * 显示目录下的文件列表
      */
     @Test
     public void listFiles() {
-        List<FileObject> files = seaOtter.file(source).list("/", Lists.newArrayList("csv"));
+        List<FileObject> files = seaOtter.file(source).list("/upload", Lists.newArrayList("csv"));
         System.out.println(JSON.toJSONString(files));
     }
 
@@ -70,7 +83,7 @@ public class SeaOtterFileTest {
     @Test
     public void queryColumns() {
         List<String> columns = seaOtter.file(source)
-                .path("output.csv")
+                .path("/upload/output1.csv")
                 .columns();
         System.out.println(JSON.toJSONString(columns));
     }
@@ -81,7 +94,7 @@ public class SeaOtterFileTest {
     @Test
     public void preview() {
         List<List<String>> databases = seaOtter.file(source)
-                .path("output.csv")
+                .path("/upload/output1.csv")
                 .rows(2);
         System.out.println(JSON.toJSONString(databases));
     }
