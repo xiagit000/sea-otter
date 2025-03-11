@@ -8,4 +8,5 @@ public interface FileMeta {
 
     List<String> columns();
     List<List<String>> rows(Integer limit);
+    FileMeta separator(String separator);
 }

@@ -19,7 +19,6 @@ public class SftpConnector implements FileSourceConnector {
     private String path;
     private String username;
     private String password;
-    private String protocol;
     private String separator;
 
     public SftpConnector() {
@@ -52,7 +51,6 @@ public class SftpConnector implements FileSourceConnector {
                 String.format("--sftp.username %s", username),
                 String.format("--sftp.password %s", password),
                 String.format("--sftp.path %s", path),
-                String.format("--sftp.protocol %s", protocol)
         };
     }
 
@@ -108,15 +106,6 @@ public class SftpConnector implements FileSourceConnector {
 
     public SftpConnector setPassword(String password) {
         this.password = password;
-        return this;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public SftpConnector setProtocol(String protocol) {
-        this.protocol = protocol;
         return this;
     }
 

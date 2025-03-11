@@ -14,9 +14,10 @@ import java.util.List;
 
 public class FtpFileMeta implements FileMeta {
 
-    private FTPClient ftpClient;
-    private String filePath;
-    private FtpConnector connector;
+    private final FTPClient ftpClient;
+    private final String filePath;
+    private final FtpConnector connector;
+    private String separator = ",";
 
     public FtpFileMeta(FtpConnector connector, FTPClient ftpClient, String filePath) {
         this.ftpClient = ftpClient;
@@ -33,7 +34,7 @@ public class FtpFileMeta implements FileMeta {
                 // 使用 BufferedReader 按行读取文件内容
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line = reader.readLine();
-                columns = Arrays.asList(line.split(connector.getSeparator() == null ? "," : connector.getSeparator()));
+                columns = Arrays.asList(line.split(separator == null ? "," : separator));
                 // 关闭流
                 reader.close();
                 inputStream.close();
@@ -60,7 +61,7 @@ public class FtpFileMeta implements FileMeta {
                 int index = 0;
                 while ((line = reader.readLine()) != null) {
                     if (index > 0) {
-                        rows.add(Arrays.asList(line.split(connector.getSeparator() == null ? "," : connector.getSeparator())));
+                        rows.add(Arrays.asList(line.split(separator == null ? "," : separator)));
                     }
                     if (index >= limit) {
                         break;
@@ -79,6 +80,12 @@ public class FtpFileMeta implements FileMeta {
             throw new RuntimeException(e);
         }
         return rows;
+    }
+
+    @Override
+    public FileMeta separator(String separator) {
+        this.separator = separator;
+        return this;
     }
 
 }

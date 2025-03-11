@@ -7,7 +7,7 @@ import com.ybt.seaotter.source.meta.file.DirMeta;
 
 public class SeaOtter {
 
-    private SeaOtterConfig config;
+    private final SeaOtterConfig config;
 
 
     public SeaOtter(SeaOtterConfig config) {

@@ -11,6 +11,7 @@ import com.ybt.seaotter.source.builder.FtpConnectorBuilder;
 import com.ybt.seaotter.source.connector.SourceConnector;
 import com.ybt.seaotter.source.impl.file.ftp.FtpConnector;
 import com.ybt.seaotter.source.impl.db.starrocks.StarrocksConnector;
+import com.ybt.seaotter.source.meta.file.FileMeta;
 import com.ybt.seaotter.source.pojo.FileObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,9 +94,12 @@ public class SeaOtterFileTest {
      */
     @Test
     public void preview() {
-        List<List<String>> databases = seaOtter.file(source)
-                .path("/upload/output1.csv")
+        FileMeta meta = seaOtter.file(source)
+                .path("/upload/output1.csv");
+        List<String> columns = meta.columns();
+        List<List<String>> databases = meta
                 .rows(2);
+        System.out.println(JSON.toJSONString(columns));
         System.out.println(JSON.toJSONString(databases));
     }
 

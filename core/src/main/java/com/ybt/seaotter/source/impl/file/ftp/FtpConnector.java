@@ -19,7 +19,6 @@ public class FtpConnector implements FileSourceConnector {
     private String path;
     private String username;
     private String password;
-    private String protocol;
     private String separator;
 
     public FtpConnector() {
@@ -52,7 +51,6 @@ public class FtpConnector implements FileSourceConnector {
                 String.format("--ftp.username %s", username),
                 String.format("--ftp.password %s", password),
                 String.format("--ftp.path %s", path),
-                String.format("--ftp.protocol %s", protocol)
         };
     }
 
@@ -108,15 +106,6 @@ public class FtpConnector implements FileSourceConnector {
 
     public FtpConnector setPassword(String password) {
         this.password = password;
-        return this;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public FtpConnector setProtocol(String protocol) {
-        this.protocol = protocol;
         return this;
     }
 

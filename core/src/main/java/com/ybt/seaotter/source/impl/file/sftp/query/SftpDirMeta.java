@@ -17,27 +17,22 @@ import java.util.stream.Collectors;
 public class SftpDirMeta implements DirMeta {
 
     private final SftpConnector connector;
-    private final Session session;
 
     public SftpDirMeta(SftpConnector connector, SeaOtterConfig config) {
         this.connector = connector;
-        JSch jsch = new JSch();
-        try {
-            Session session = jsch.getSession(connector.getUsername(), connector.getHost(), connector.getPort());
-            session.setPassword(connector.getPassword());
-            session.setConfig("StrictHostKeyChecking", "no");
-            this.session = session;
-        } catch (JSchException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 
     @Override
     public List<FileObject> list(String dir, List<String> formats) {
         List<FileObject> fileObjects = Lists.newArrayList();
+        Session session = null;
         ChannelSftp channel = null;
+        JSch jsch = new JSch();
         try {
+            session = jsch.getSession(connector.getUsername(), connector.getHost(), connector.getPort());
+            session.setPassword(connector.getPassword());
+            session.setConfig("StrictHostKeyChecking", "no");
             session.connect();
             channel = (ChannelSftp) session.openChannel("sftp");
             channel.connect();
@@ -74,7 +69,7 @@ public class SftpDirMeta implements DirMeta {
 
     @Override
     public FileMeta path(String fileName) {
-        return new SftpFileMeta(connector, fileName, session);
+        return new SftpFileMeta(connector, fileName);
     }
 
 
