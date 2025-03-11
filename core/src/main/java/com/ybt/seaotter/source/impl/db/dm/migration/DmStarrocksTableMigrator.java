@@ -37,7 +37,7 @@ public class DmStarrocksTableMigrator implements DataMigrator {
 
     @Override
     public void migrate() {
-        String sql = String.format("SELECT DBMS_METADATA.GET_DDL('TABLE', '%s') FROM DUAL;", source.getTable());
+        String sql = String.format("SELECT DBMS_METADATA.GET_DDL('TABLE', '%s') FROM DUAL", source.getTable());
         String mysqlCreateSql = "";
         try (Connection connection =  getSourceConnection();
              Statement statement = connection.createStatement();
