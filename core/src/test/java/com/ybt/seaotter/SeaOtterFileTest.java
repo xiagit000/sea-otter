@@ -40,26 +40,26 @@ public class SeaOtterFileTest {
         seaOtter = SeaOtter.config(seaOtterConfig);
     }
 
-//    private final SourceConnector source = FtpConnectorBuilder
-//            .builder()
-//            .setHost("172.27.228.50")
-//            .setPort(21)
-//            .setUsername("root")
-//            .setPassword("root")
-//            .setProtocol("ftp")
-//            .setSeparator(",")
-//            .setPath("/output1.csv")
-//            .build();
     private final SourceConnector source = FtpConnectorBuilder
             .builder()
             .setHost("172.16.5.170")
-            .setPort(12222)
-            .setUsername("martechdata")
-            .setPassword("Ycb@martech789")
-            .setProtocol("sftp")
+            .setPort(21)
+            .setUsername("ftpuser")
+            .setPassword("123")
+            .setProtocol("ftp")
             .setSeparator(",")
-            .setPath("/upload/output1.csv")
+            .setPath("/output1.csv")
             .build();
+//    private final SourceConnector source = FtpConnectorBuilder
+//            .builder()
+//            .setHost("172.16.5.170")
+//            .setPort(12222)
+//            .setUsername("martechdata")
+//            .setPassword("Ycb@martech789")
+//            .setProtocol("sftp")
+//            .setSeparator(",")
+//            .setPath("/upload/output1.csv")
+//            .build();
     private final SourceConnector sink = new StarrocksConnector()
             .setHost("172.16.1.51")
             .setHttpPort(8080)
@@ -74,7 +74,7 @@ public class SeaOtterFileTest {
      */
     @Test
     public void listFiles() {
-        List<FileObject> files = seaOtter.file(source).list("/upload", Lists.newArrayList("csv"));
+        List<FileObject> files = seaOtter.file(source).list("/", Lists.newArrayList("txt"));
         System.out.println(JSON.toJSONString(files));
     }
 

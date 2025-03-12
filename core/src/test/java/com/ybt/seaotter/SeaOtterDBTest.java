@@ -44,7 +44,7 @@ public class SeaOtterDBTest {
             .setUsername("SYSDBA")
             .setPassword("Dameng111")
             .setDatabase("center_chain")
-            .setTable("CHAIN_RECOVERY_ORDER");
+            .setTable("CHAIN_SUPPLIER");
 
 //    private SourceConnector source = new OracleConnector()
 //            .setHost("172.16.5.101")
@@ -61,7 +61,7 @@ public class SeaOtterDBTest {
             .setUsername("root")
             .setPassword("")
             .setDatabase("data_warehouse")
-            .setTable("CHAIN_RECOVERY_ORDER");
+            .setTable("CHAIN_SUPPLIER_COPY_01");
 
     /**
      * 查询database

@@ -38,6 +38,12 @@ public class FtpDirMeta implements DirMeta {
 
     @Override
     public List<FileObject> list(String dir, List<String> formats) {
+        try {
+            dir = ftpClient.printWorkingDirectory().concat(dir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        ftpClient.enterLocalPassiveMode();
         FTPFile[] files;
         try {
             files = ftpClient.listFiles(dir);
