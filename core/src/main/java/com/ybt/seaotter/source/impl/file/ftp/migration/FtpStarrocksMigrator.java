@@ -41,7 +41,7 @@ public class FtpStarrocksMigrator implements DataMigrator {
         List<ColumnRel> columnRels = columns.stream().map(column ->
                 new ColumnRel(false, column, "varchar(500)")).collect(Collectors.toList());
         statement.setColumnRels(columnRels);
-        String createTableSQL = StarRocksUtils.generateTableCreateSql(statement, sink.getTable(), null);
+        String createTableSQL = StarRocksUtils.generateTableCreateSql(statement, sink.getTable(), s -> s);
         try (Connection sinkConnection =  getSinkConnection();
              Statement sinkStatement = sinkConnection.createStatement()) {
             logger.info("FTP create table sql: {}", createTableSQL);
@@ -51,4 +51,5 @@ public class FtpStarrocksMigrator implements DataMigrator {
             throw new SeaOtterException(e.getMessage());
         }
     }
+
 }

@@ -15,20 +15,25 @@ public class DownloadUtils {
     
     public static boolean downloadByFtp(String host, int port, String username, String password,
                                         String remoteFilePath, String localFilePath) {
+
         FTPClient ftpClient = new FTPClient();
         try {
             ftpClient.connect(host, port);
             ftpClient.login(username, password);
             ftpClient.enterLocalPassiveMode();
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-
+            ftpClient.enterLocalPassiveMode();
             File localFile = new File(localFilePath);
             File localDir = localFile.getParentFile();
             if (!localDir.exists() && !localDir.mkdirs()) {
                 System.out.println("无法创建本地目录: " + localDir.getAbsolutePath());
                 return false;
             }
-
+            try {
+                remoteFilePath = ftpClient.printWorkingDirectory().concat(remoteFilePath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             try (OutputStream outputStream = Files.newOutputStream(Paths.get(localFilePath))) {
                 return ftpClient.retrieveFile(remoteFilePath, outputStream);
             }

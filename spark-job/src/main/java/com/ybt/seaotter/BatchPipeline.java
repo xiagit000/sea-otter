@@ -135,13 +135,13 @@ public class BatchPipeline {
             String localFilePath = "/opt/bitnami/spark/tmp/download/".concat(argsMap.get("callback.tag")).concat("_").concat(fileName);
             DownloadUtils.downloadByFtp(argsMap.get("ftp.host"), Integer.parseInt(argsMap.get("ftp.port")),
                     argsMap.get("ftp.username"), argsMap.get("ftp.password"), argsMap.get("ftp.path"), localFilePath);
-            return spark.read().option("header", "true").csv(localFilePath);
+            return spark.read().option("header", "true").option("delimiter", argsMap.get("ftp.separator")).csv(localFilePath);
         } else if (source.equals("SFTP")) {
             String fileName = argsMap.get("sftp.path").substring(argsMap.get("sftp.path").lastIndexOf("/") + 1);
             String localFilePath = "/opt/bitnami/spark/tmp/download/".concat(argsMap.get("callback.tag")).concat("_").concat(fileName);
             DownloadUtils.downloadBySftp(argsMap.get("sftp.host"), Integer.parseInt(argsMap.get("sftp.port")),
                     argsMap.get("sftp.username"), argsMap.get("sftp.password"), argsMap.get("sftp.path"), localFilePath);
-            return spark.read().option("header", "true").csv(localFilePath);
+            return spark.read().option("header", "true").option("delimiter", argsMap.get("ftp.separator")).csv(localFilePath);
         } else {
             throw new RuntimeException("source options happened error");
         }

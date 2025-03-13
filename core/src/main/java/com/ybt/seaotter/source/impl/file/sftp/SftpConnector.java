@@ -1,5 +1,6 @@
 package com.ybt.seaotter.source.impl.file.sftp;
 
+import com.google.common.base.Strings;
 import com.ybt.seaotter.common.enums.DataSourceType;
 import com.ybt.seaotter.config.SeaOtterConfig;
 import com.ybt.seaotter.source.builder.FtpConnectorBuilder;
@@ -19,7 +20,7 @@ public class SftpConnector implements FileSourceConnector {
     private String path;
     private String username;
     private String password;
-    private String separator;
+    private String separator = ",";
 
     public SftpConnector() {
     }
@@ -30,7 +31,9 @@ public class SftpConnector implements FileSourceConnector {
         this.path = builder.getPath();
         this.username = builder.getUsername();
         this.password = builder.getPassword();
-        this.separator = builder.getSeparator();
+        if (!Strings.isNullOrEmpty(builder.getSeparator())) {
+            this.separator = builder.getSeparator();
+        }
     }
 
     @Override
@@ -51,6 +54,7 @@ public class SftpConnector implements FileSourceConnector {
                 String.format("--sftp.username %s", username),
                 String.format("--sftp.password %s", password),
                 String.format("--sftp.path %s", path),
+                String.format("--sftp.separator %s", separator),
         };
     }
 

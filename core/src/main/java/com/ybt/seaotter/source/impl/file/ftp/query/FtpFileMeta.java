@@ -3,6 +3,7 @@ package com.ybt.seaotter.source.impl.file.ftp.query;
 import com.google.common.collect.Lists;
 import com.ybt.seaotter.source.impl.file.ftp.FtpConnector;
 import com.ybt.seaotter.source.meta.file.FileMeta;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 
 import java.io.BufferedReader;
@@ -16,17 +17,17 @@ public class FtpFileMeta implements FileMeta {
 
     private final FTPClient ftpClient;
     private final String filePath;
-    private final FtpConnector connector;
-    private String separator = ",";
+    private String separator;
 
     public FtpFileMeta(FtpConnector connector, FTPClient ftpClient, String filePath) {
         this.ftpClient = ftpClient;
         this.filePath = filePath;
-        this.connector = connector;
+        this.separator = connector.getSeparator();
     }
 
     @Override
     public List<String> columns() {
+
         List<String> columns = Lists.newArrayList();
         try {
             InputStream inputStream = ftpClient.retrieveFileStream(filePath);
@@ -34,7 +35,7 @@ public class FtpFileMeta implements FileMeta {
                 // 使用 BufferedReader 按行读取文件内容
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line = reader.readLine();
-                columns = Arrays.asList(line.split(separator == null ? "," : separator));
+                columns = Arrays.asList(StringUtils.splitByWholeSeparator(line, separator));
                 // 关闭流
                 reader.close();
                 inputStream.close();
@@ -61,7 +62,7 @@ public class FtpFileMeta implements FileMeta {
                 int index = 0;
                 while ((line = reader.readLine()) != null) {
                     if (index > 0) {
-                        rows.add(Arrays.asList(line.split(separator == null ? "," : separator)));
+                        rows.add(Arrays.asList(StringUtils.splitByWholeSeparator(line, separator)));
                     }
                     if (index >= limit) {
                         break;

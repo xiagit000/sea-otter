@@ -40,26 +40,25 @@ public class SeaOtterFileTest {
         seaOtter = SeaOtter.config(seaOtterConfig);
     }
 
-    private final SourceConnector source = FtpConnectorBuilder
-            .builder()
-            .setHost("172.16.5.170")
-            .setPort(21)
-            .setUsername("ftpuser")
-            .setPassword("123")
-            .setProtocol("ftp")
-            .setSeparator(",")
-            .setPath("/output1.csv")
-            .build();
 //    private final SourceConnector source = FtpConnectorBuilder
 //            .builder()
 //            .setHost("172.16.5.170")
-//            .setPort(12222)
-//            .setUsername("martechdata")
-//            .setPassword("Ycb@martech789")
-//            .setProtocol("sftp")
-//            .setSeparator(",")
-//            .setPath("/upload/output1.csv")
+//            .setPort(21)
+//            .setUsername("ftpuser")
+//            .setPassword("123")
+//            .setProtocol("ftp")
+//            .setSeparator("|")
+//            .setPath("/custom_user.txt")
 //            .build();
+    private final SourceConnector source = FtpConnectorBuilder
+            .builder()
+            .setHost("172.16.5.170")
+            .setPort(12222)
+            .setUsername("martechdata")
+            .setPassword("Ycb@martech789")
+            .setProtocol("sftp")
+            .setPath("/upload/output1.csv")
+            .build();
     private final SourceConnector sink = new StarrocksConnector()
             .setHost("172.16.1.51")
             .setHttpPort(8080)
@@ -67,7 +66,7 @@ public class SeaOtterFileTest {
             .setUsername("root")
             .setPassword("")
             .setDatabase("data_warehouse")
-            .setTable("product_sample_01");
+            .setTable("custom_user");
 
     /**
      * 显示目录下的文件列表
@@ -95,7 +94,8 @@ public class SeaOtterFileTest {
     @Test
     public void preview() {
         FileMeta meta = seaOtter.file(source)
-                .path("/upload/output1.csv");
+                .path("/custom_user.txt")
+                .separator("|");
         List<String> columns = meta.columns();
         List<List<String>> databases = meta
                 .rows(2);

@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 
 public class FtpDirMeta implements DirMeta {
 
-    private FtpConnector connector;
-    private FTPClient ftpClient;
+    private final FtpConnector connector;
+    private final FTPClient ftpClient;
     private final String[] WHITE_FILE_TYPES = new String[] {"csv", "txt", "xlsx", "xls"};
 
     public FtpDirMeta(FtpConnector connector, SeaOtterConfig config) {
@@ -29,6 +29,8 @@ public class FtpDirMeta implements DirMeta {
             ftpClient.connect(connector.getHost());
             ftpClient.login(connector.getUsername(), connector.getPassword());
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+            ftpClient.enterLocalPassiveMode();
+            ftpClient.setControlEncoding("UTF-8");
         } catch (IOException e) {
             throw new SeaOtterException("ftp连接失败");
         }
@@ -43,7 +45,6 @@ public class FtpDirMeta implements DirMeta {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        ftpClient.enterLocalPassiveMode();
         FTPFile[] files;
         try {
             files = ftpClient.listFiles(dir);
@@ -71,6 +72,11 @@ public class FtpDirMeta implements DirMeta {
 
     @Override
     public FileMeta path(String fileName) {
+        try {
+            fileName = ftpClient.printWorkingDirectory().concat(fileName);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return new FtpFileMeta(connector, ftpClient, fileName);
     }
 
