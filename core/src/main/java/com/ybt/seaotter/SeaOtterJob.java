@@ -7,9 +7,9 @@ import com.ybt.seaotter.source.connector.SourceConnector;
 public class SeaOtterJob {
     private SourceConnector source;
     private SourceConnector target;
-    private SeaOtterConfig config;
-    private String callbackUrl;
+    private final SeaOtterConfig config;
     private String tag;
+    private String jobName;
 
     public SeaOtterJob(SeaOtterConfig config) {
         this.config = config;
@@ -66,5 +66,14 @@ public class SeaOtterJob {
 
     public String getCallbackTag() {
         return tag;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public SeaOtterJob jobName(String jobName) {
+        this.jobName = jobName;
+        return this;
     }
 }

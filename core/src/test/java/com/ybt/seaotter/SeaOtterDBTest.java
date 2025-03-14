@@ -32,7 +32,7 @@ public class SeaOtterDBTest {
     public void init() {
         SeaOtterConfig seaOtterConfig = SeaOtterConfig.builder()
                 .sparkOptions(new SparkOptions("172.16.5.170", 6066))
-                .flinkOptions(new FlinkOptions("172.16.5.170", 8081))
+                .flinkOptions(new FlinkOptions("localhost", 8081))
                 .callback("http://192.168.10.5:9090/api/callback")
                 .build();
         seaOtter = SeaOtter.config(seaOtterConfig);
@@ -137,8 +137,12 @@ public class SeaOtterDBTest {
     @Test
     public void cdcJob() {
         System.out.println(seaOtter.job()
-                .tag("CDC123456") // 业务关联标签
-                .from(source).to(sink).CDCMode().submit());
+                    .jobName("mysql to starrocks 1")
+                    .tag("CDC123456") // 业务关联标签
+                    .from(source).to(sink)
+                    .CDCMode()
+                        .serverId("5800")
+                    .submit());
     }
 
     /**

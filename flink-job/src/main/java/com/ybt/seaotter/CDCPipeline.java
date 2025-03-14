@@ -48,7 +48,7 @@ public class CDCPipeline {
                 .tableList(String.format("%s.%s", argMap.get("mysql.database"), argMap.get("mysql.table")))
                 .username(argMap.get("mysql.username"))
                 .password(argMap.get("mysql.password"))
-                .serverId("5400")
+                .serverId(argMap.get("flink.serverId"))
                 .serverTimeZone("Asia/Shanghai")
                 .deserializer(new MyDebeziumDeserializationSchema())
                 .build();
@@ -112,7 +112,7 @@ public class CDCPipeline {
                 .build())));
 
         // Execute the Flink job
-        env.execute("Sync MySQL to StarRocks");
+        env.execute(argMap.get("flink.jobName"));
     }
 
 }

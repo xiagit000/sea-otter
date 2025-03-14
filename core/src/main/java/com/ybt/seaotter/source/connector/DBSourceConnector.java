@@ -5,4 +5,6 @@ import com.ybt.seaotter.source.meta.database.DBMeta;
 
 public interface DBSourceConnector extends SourceConnector {
     DBMeta getMeta(SeaOtterConfig config);
+    String getDatabase();
+    String getTable();
 }

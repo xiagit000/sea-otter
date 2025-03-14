@@ -1,19 +1,25 @@
 package com.ybt.seaotter;
 
 import com.github.ywilkof.sparkrestclient.JobStatusResponse;
+import com.google.common.base.Strings;
 import com.ybt.seaotter.client.SparkClient;
 import com.ybt.seaotter.common.enums.JobState;
 import com.ybt.seaotter.common.enums.TransmissionMode;
 
 public class SeaOtterBatchJob {
-    private SeaOtterJob seaOtterSync;
+    private final SeaOtterJob seaOtterSync;
+    private final SparkClient sparkClient;
+
     private String upsertColumn;
     private String columnVal;
     private TransmissionMode  transmissionMode = TransmissionMode.OVERWRITE;
-    private SparkClient sparkClient;
+    private String jobName;
 
-    public SeaOtterBatchJob(SeaOtterJob seaOtterSync) {
-        this.seaOtterSync = seaOtterSync;
+    public SeaOtterBatchJob(SeaOtterJob seaOtterJob) {
+        if (!Strings.isNullOrEmpty(seaOtterJob.getJobName())) {
+            this.jobName = seaOtterJob.getJobName();
+        }
+        this.seaOtterSync = seaOtterJob;
         this.sparkClient = new SparkClient(this);
     }
 
@@ -60,5 +66,9 @@ public class SeaOtterBatchJob {
 
     public TransmissionMode getTransmissionMode() {
         return transmissionMode;
+    }
+
+    public String getJobName() {
+        return jobName;
     }
 }

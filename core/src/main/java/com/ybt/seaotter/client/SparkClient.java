@@ -1,5 +1,6 @@
 package com.ybt.seaotter.client;
 
+import com.alibaba.fastjson.JSON;
 import com.github.ywilkof.sparkrestclient.DriverState;
 import com.github.ywilkof.sparkrestclient.FailedSparkRequestException;
 import com.github.ywilkof.sparkrestclient.JobStatusResponse;
@@ -10,6 +11,7 @@ import com.ybt.seaotter.common.enums.JobState;
 import com.ybt.seaotter.config.SparkOptions;
 import com.ybt.seaotter.exceptions.SeaOtterException;
 import com.ybt.seaotter.source.connector.SourceConnector;
+import org.slf4j.Logger;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +26,7 @@ public class SparkClient {
     private final String callbackTag;
     private final SparkRestClient sparkRestClient;
     private final static String SPARK_JARS_PATH = "/opt/jars";
+    private final Logger logger = org.slf4j.LoggerFactory.getLogger(SparkClient.class);
 
     public SparkClient(SeaOtterBatchJob  seaOtterBatchJob) {
         this.source = seaOtterBatchJob.getSeaOtterSync().getSource();
@@ -47,12 +50,13 @@ public class SparkClient {
             args.addAll(Arrays.asList(source.getSparkArgs()));
             args.addAll(Arrays.asList(target.getSparkArgs()));
             if (upsertColumn != null && columnVal != null) {
-                args.add(String.format("--upsertColumn %s", upsertColumn));
-                args.add(String.format("--columnVal %s", columnVal));
+                args.add(String.format("--upsertColumn '%s'", upsertColumn));
+                args.add(String.format("--columnVal '%s'", columnVal));
             }
-            args.add(String.format("--callback.url %s", callbackUrl));
-            args.add(String.format("--callback.tag %s", callbackTag));
-            args.add(String.format("--source %s", source.getName()));
+            args.add(String.format("--callback.url '%s'", callbackUrl));
+            args.add(String.format("--callback.tag '%s'", callbackTag));
+            args.add(String.format("--source '%s'", source.getName()));
+            logger.debug("Spark job submit args: {}", JSON.toJSONString(args));
             String jarPath = source.getDataDefine(target).getDriverJar();
             String driverJarPath = jarPath == null ? "" : String.format("file://%s/%s,", SPARK_JARS_PATH, jarPath);
             submissionId = sparkRestClient.prepareJobSubmit()

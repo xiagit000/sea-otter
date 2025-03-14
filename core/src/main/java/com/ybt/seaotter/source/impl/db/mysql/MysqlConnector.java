@@ -21,6 +21,7 @@ public class MysqlConnector implements DBSourceConnector {
     private String password;
     private String database;
     private String table;
+
     public MysqlConnector() {
     }
 

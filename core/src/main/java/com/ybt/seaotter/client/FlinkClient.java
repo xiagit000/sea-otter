@@ -6,34 +6,40 @@ import com.nextbreakpoint.flinkclient.api.ApiResponse;
 import com.nextbreakpoint.flinkclient.api.FlinkApi;
 import com.nextbreakpoint.flinkclient.model.JarListInfo;
 import com.nextbreakpoint.flinkclient.model.JarRunResponseBody;
-import com.nextbreakpoint.flinkclient.model.JarUploadResponseBody;
 import com.nextbreakpoint.flinkclient.model.JobDetailsInfo;
+import com.ybt.seaotter.SeaOtterCDCJob;
 import com.ybt.seaotter.SeaOtterJob;
 import com.ybt.seaotter.common.enums.JobState;
-import com.ybt.seaotter.config.FlinkOptions;
 import com.ybt.seaotter.exceptions.SeaOtterException;
-import com.ybt.seaotter.source.connector.SourceConnector;
+import com.ybt.seaotter.source.connector.DBSourceConnector;
+import org.slf4j.Logger;
 
 import java.io.File;
-import java.util.Arrays;
 
 public class FlinkClient {
-    private final SourceConnector source;
-    private final SourceConnector target;
+    private final DBSourceConnector source;
+    private final DBSourceConnector target;
     private final FlinkApi api;
     private final String callbackUrl;
     private final String tag;
-    private final String JOB_NAME = "flink-job-1.0-SNAPSHOT.jar";
+    private final String JOB_PATH = "flink-job-1.0-SNAPSHOT.jar";
+    private String serverId;
+    private String jobName;
 
-    public FlinkClient(SeaOtterJob job) {
-        this.source = job.getSource();
-        this.target = job.getTarget();
+    private final Logger logger = org.slf4j.LoggerFactory.getLogger(FlinkClient.class);
+
+    public FlinkClient(SeaOtterCDCJob cdcJob) {
+        SeaOtterJob job = cdcJob.getSeaOtterJob();
+        this.source = (DBSourceConnector) job.getSource();
+        this.target = (DBSourceConnector) job.getTarget();
         FlinkApi api = new FlinkApi();
         api.getApiClient().setBasePath(String.format("http://%s:%s", job.getConfig().getFinkOptions().getHost(),
                 job.getConfig().getFinkOptions().getPort()));
         this.api = api;
         this.callbackUrl = job.getConfig().getCallbackUrl();
         this.tag = job.getCallbackTag();
+        this.serverId = cdcJob.getServerId();
+        this.jobName = cdcJob.getJobName();
     }
 
     public String listJars() {
@@ -51,14 +57,16 @@ public class FlinkClient {
         } catch (ApiException e) {
             throw new RuntimeException(e);
         }
-        String jarId = jars.getFiles().stream().filter(e -> e.getName().equals(JOB_NAME)).findAny()
+        String jarId = jars.getFiles().stream().filter(e -> e.getName().equals(JOB_PATH)).findAny()
                 .orElseThrow(() -> new SeaOtterException("flink job not found")).getId();
         System.out.println(JSON.toJSONString(jars));
         StringBuilder argsBuilder = new StringBuilder();
         argsBuilder.append(source.getFlinkArgs().concat(" ").concat(target.getFlinkArgs()));
-        argsBuilder.append(String.format(" --callback.url %s", callbackUrl));
-        argsBuilder.append(String.format(" --callback.tag %s", tag));
-
+        argsBuilder.append(String.format(" --callback.url '%s'", callbackUrl));
+        argsBuilder.append(String.format(" --callback.tag '%s'", tag));
+        argsBuilder.append(String.format(" --flink.serverId '%s'", serverId));
+        argsBuilder.append(String.format(" --flink.jobName '%s'", jobName));
+        logger.debug("Flink job submit args: {}", argsBuilder);
         JarRunResponseBody response = null;
         try {
 //            JarUploadResponseBody result = api.uploadJar(new File("E:\\ybt\\sea-otter\\flink-job\\target\\flink-job-1.0-SNAPSHOT.jar"));
@@ -123,5 +131,13 @@ public class FlinkClient {
         } catch (ApiException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
     }
 }
