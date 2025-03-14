@@ -50,12 +50,12 @@ public class SparkClient {
             args.addAll(Arrays.asList(source.getSparkArgs()));
             args.addAll(Arrays.asList(target.getSparkArgs()));
             if (upsertColumn != null && columnVal != null) {
-                args.add(String.format("--upsertColumn '%s'", upsertColumn));
-                args.add(String.format("--columnVal '%s'", columnVal));
+                args.add(String.format("--upsertColumn %s", upsertColumn));
+                args.add(String.format("--columnVal %s", columnVal));
             }
-            args.add(String.format("--callback.url '%s'", callbackUrl));
-            args.add(String.format("--callback.tag '%s'", callbackTag));
-            args.add(String.format("--source '%s'", source.getName()));
+            args.add(String.format("--callback.url %s", callbackUrl));
+            args.add(String.format("--callback.tag %s", callbackTag));
+            args.add(String.format("--source %s", source.getName()));
             logger.debug("Spark job submit args: {}", JSON.toJSONString(args));
             String jarPath = source.getDataDefine(target).getDriverJar();
             String driverJarPath = jarPath == null ? "" : String.format("file://%s/%s,", SPARK_JARS_PATH, jarPath);

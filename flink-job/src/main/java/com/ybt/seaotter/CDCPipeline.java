@@ -20,6 +20,7 @@ import org.apache.flink.core.execution.JobListener;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.time.LocalDateTime;
@@ -28,17 +29,16 @@ import java.util.concurrent.CompletableFuture;
 
 public class CDCPipeline {
 
-    private static final Integer CALLBACK_DURATION = 1; //分钟
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(CDCPipeline.class);
 
 
     public static void main(String[] args) throws Exception {
 
-
         ParameterTool params = ParameterTool.fromArgs(args);
         Map<String, String> argMap = params.toMap();
-        System.out.println("################ args ################### ");
+        logger.info("################ args ################### ");
         for (Map.Entry<String, String> entry : argMap.entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
+            logger.info("{} : {}", entry.getKey(), entry.getValue());
         }
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         MySqlSource<String> mysqlSource = MySqlSource.<String>builder()

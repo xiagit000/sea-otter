@@ -32,7 +32,7 @@ public class SeaOtterDBTest {
     public void init() {
         SeaOtterConfig seaOtterConfig = SeaOtterConfig.builder()
                 .sparkOptions(new SparkOptions("172.16.5.170", 6066))
-                .flinkOptions(new FlinkOptions("localhost", 8081))
+                .flinkOptions(new FlinkOptions("172.16.5.170", 8081))
                 .callback("http://192.168.10.5:9090/api/callback")
                 .build();
         seaOtter = SeaOtter.config(seaOtterConfig);
@@ -188,12 +188,9 @@ public class SeaOtterDBTest {
         System.out.println(jobState.toString());
     }
 
-    /**
-     * 取消实时任务
-     * @param seaOtter
-     */
-    public void cdcJobCancel(SeaOtter seaOtter) {
-        Boolean bool = seaOtter.job().CDCMode().cancel("857e866db3a9022a2122d88e7ecac1a3");
+    @Test
+    public void cdcJobCancel() {
+        Boolean bool = seaOtter.job().CDCMode().cancel("392b65a40380e969c53bba8a14a114b3");
         System.out.println(bool);
     }
 
