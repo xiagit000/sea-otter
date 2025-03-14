@@ -20,13 +20,13 @@ public class SeaOtterDBTest {
 
     private SeaOtter seaOtter;
 
-//    private final SourceConnector source = new MysqlConnector()
-//            .setHost("172.16.2.47")
-//            .setPort(3306)
-//            .setUsername("saas_dba")
-//            .setPassword("@Saas$2023")
-//            .setDatabase("product_recognition")
-//            .setTable("sync_task");
+    private final SourceConnector source = new MysqlConnector()
+            .setHost("172.16.2.47")
+            .setPort(3306)
+            .setUsername("saas_dba")
+            .setPassword("@Saas$2023")
+            .setDatabase("product_recognition")
+            .setTable("sync_task");
 
     @Before
     public void init() {
@@ -38,13 +38,13 @@ public class SeaOtterDBTest {
         seaOtter = SeaOtter.config(seaOtterConfig);
     }
 
-    private SourceConnector source = new DmConnector()
-            .setHost("172.16.5.101")
-            .setPort(5236)
-            .setUsername("SYSDBA")
-            .setPassword("Dameng111")
-            .setDatabase("center_chain")
-            .setTable("CHAIN_SUPPLIER");
+//    private SourceConnector source = new DmConnector()
+//            .setHost("172.16.5.101")
+//            .setPort(5236)
+//            .setUsername("SYSDBA")
+//            .setPassword("Dameng111")
+//            .setDatabase("center_chain")
+//            .setTable("CHAIN_SUPPLIER");
 
 //    private SourceConnector source = new OracleConnector()
 //            .setHost("172.16.5.101")
