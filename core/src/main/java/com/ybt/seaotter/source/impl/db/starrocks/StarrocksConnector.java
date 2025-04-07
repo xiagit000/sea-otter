@@ -2,12 +2,21 @@ package com.ybt.seaotter.source.impl.db.starrocks;
 
 import com.ybt.seaotter.common.enums.DataSourceType;
 import com.ybt.seaotter.config.SeaOtterConfig;
+import com.ybt.seaotter.exceptions.SeaOtterException;
 import com.ybt.seaotter.source.connector.DBSourceConnector;
 import com.ybt.seaotter.source.connector.SourceConnector;
 import com.ybt.seaotter.source.ddl.DataDefine;
 import com.ybt.seaotter.source.ddl.DataMigrator;
+import com.ybt.seaotter.source.impl.db.mysql.migration.MysqlDefine;
+import com.ybt.seaotter.source.impl.db.starrocks.migration.StarrocksDefine;
+import com.ybt.seaotter.source.impl.db.starrocks.query.StarrocksMeta;
 import com.ybt.seaotter.source.meta.database.DBMeta;
+import io.github.melin.superior.common.relational.create.CreateTable;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -111,7 +120,7 @@ public class StarrocksConnector implements DBSourceConnector {
 
     @Override
     public String getFlinkArgs() {
-        return Arrays.stream(getSparkArgs()).collect(Collectors.joining(" "));
+        return String.join(" ", getSparkArgs());
     }
 
     @Override
@@ -129,15 +138,11 @@ public class StarrocksConnector implements DBSourceConnector {
 
     @Override
     public DBMeta getMeta(SeaOtterConfig config) {
-        return null;
-    }
-
-    public DataMigrator migrateTableSchemaTo(SourceConnector sink) {
-        return null;
+        return new StarrocksMeta(this, config);
     }
 
     @Override
-    public DataDefine getDataDefine(SourceConnector connector) {
-        return null;
+    public DataDefine getDataDefine(SourceConnector sink) {
+        return new StarrocksDefine(this, sink);
     }
 }

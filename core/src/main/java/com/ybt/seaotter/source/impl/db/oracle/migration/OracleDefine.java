@@ -10,9 +10,8 @@ import com.ybt.seaotter.source.impl.db.starrocks.StarrocksConnector;
 
 public class OracleDefine implements DataDefine {
 
-    private OracleConnector source;
-    private SourceConnector sink;
-    private final String DRIVER_JAR = "ojdbc8-21.1.0.0.jar";
+    private final OracleConnector source;
+    private final SourceConnector sink;
 
     public OracleDefine(OracleConnector source, SourceConnector sink) {
         this.source = source;
@@ -29,6 +28,6 @@ public class OracleDefine implements DataDefine {
 
     @Override
     public String getDriverJar() {
-        return DRIVER_JAR;
+        return "ojdbc8-21.1.0.0.jar";
     }
 }

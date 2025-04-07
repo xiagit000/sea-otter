@@ -1,4 +1,4 @@
-package com.ybt.seaotter.source.impl.db.mysql.migration;
+package com.ybt.seaotter.source.impl.db.starrocks.migration;
 
 import com.github.melin.superior.sql.parser.mysql.MySqlHelper;
 import com.ybt.seaotter.exceptions.SeaOtterException;
@@ -12,20 +12,20 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
-public class MysqlStarrocksTableMigrator implements DataMigrator {
+public class StarrocksStarrocksTableMigrator implements DataMigrator {
 
-    private final MysqlConnector source;
+    private final StarrocksConnector source;
     private final StarrocksConnector sink;
-    private final Logger logger = LoggerFactory.getLogger(MysqlStarrocksTableMigrator.class);
+    private final Logger logger = LoggerFactory.getLogger(StarrocksStarrocksTableMigrator.class);
 
-    public MysqlStarrocksTableMigrator(MysqlConnector source, StarrocksConnector sink) {
+    public StarrocksStarrocksTableMigrator(StarrocksConnector source, StarrocksConnector sink) {
         this.source = source;
         this.sink = sink;
     }
 
     private Connection getSourceConnection() throws SQLException {
         return DriverManager.getConnection(String
-                        .format("jdbc:mysql://%s:%s/%s", source.getHost(), source.getPort(), source.getDatabase()),
+                        .format("jdbc:mysql://%s:%s/%s", source.getHost(), source.getRpcPort(), source.getDatabase()),
                 source.getUsername(), source.getPassword());
     }
 
@@ -49,11 +49,10 @@ public class MysqlStarrocksTableMigrator implements DataMigrator {
         } catch (SQLException e) {
             throw new SeaOtterException(e.getMessage());
         }
-        CreateTable statement = (CreateTable) MySqlHelper.parseStatement(mysqlCreateSql);
-        String createTableSQL = StarRocksUtils.generateTableCreateSql(statement, sink.getTable(), this::convertColumnType);
+        String createTableSQL = mysqlCreateSql.replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS");
         try (Connection sinkConnection =  getSinkConnection();
              Statement sinkStatement = sinkConnection.createStatement()) {
-            logger.info("MYSQL create table sql: {}", createTableSQL);
+            logger.info("STARROCKS： create table sql: {}", createTableSQL);
             sinkStatement.execute(createTableSQL);
         }  catch (SQLException e) {
             throw new SeaOtterException(e.getMessage());

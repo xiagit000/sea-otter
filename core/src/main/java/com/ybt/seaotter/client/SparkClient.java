@@ -67,7 +67,7 @@ public class SparkClient {
                     .withProperties()
                     .put("spark.driver.memory", "1g")
                     .put("spark.driver.cores", "1")
-                    .put("spark.executor.memory", "1g")
+                    .put("spark.executor.memory", "2g")
                     .put("spark.executor.instances", "1")
                     .put("spark.executor.cores", "1")
                     .put("spark.jars",

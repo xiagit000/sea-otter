@@ -6,10 +6,12 @@ import com.ybt.seaotter.common.enums.TransmissionMode;
 import com.ybt.seaotter.config.FlinkOptions;
 import com.ybt.seaotter.config.SeaOtterConfig;
 import com.ybt.seaotter.config.SparkOptions;
+import com.ybt.seaotter.source.connector.DBSourceConnector;
 import com.ybt.seaotter.source.connector.SourceConnector;
 import com.ybt.seaotter.source.impl.db.dm.DmConnector;
 import com.ybt.seaotter.source.impl.db.mysql.MysqlConnector;
 import com.ybt.seaotter.source.impl.db.starrocks.StarrocksConnector;
+import me.tongfei.progressbar.ProgressBar;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,13 +22,13 @@ public class SeaOtterDBTest {
 
     private SeaOtter seaOtter;
 
-    private final SourceConnector source = new MysqlConnector()
-            .setHost("172.16.2.47")
-            .setPort(3306)
-            .setUsername("saas_dba")
-            .setPassword("@Saas$2023")
-            .setDatabase("product_recognition")
-            .setTable("sync_task");
+//    private final SourceConnector source = new MysqlConnector()
+//            .setHost("172.16.2.47")
+//            .setPort(3306)
+//            .setUsername("saas_dba")
+//            .setPassword("@Saas$2023")
+//            .setDatabase("sea_otter")
+//            .setTable("customer");
 
     @Before
     public void init() {
@@ -54,14 +56,25 @@ public class SeaOtterDBTest {
 //            .setSid("xe")
 //            .setDatabase("YBT")
 //            .setTable("ORACLE_USER");
-    private final SourceConnector sink = new StarrocksConnector()
+//    private final DBSourceConnector source = new StarrocksConnector()
+//            .setHost("172.16.1.51")
+//            .setHttpPort(8080)
+//            .setRpcPort(9030)
+//            .setUsername("root")
+//            .setPassword("");
+
+    private final DBSourceConnector source = new MysqlConnector()
             .setHost("172.16.1.51")
-            .setHttpPort(8080)
-            .setRpcPort(9030)
+            .setPort(9030)
             .setUsername("root")
-            .setPassword("")
-            .setDatabase("data_warehouse")
-            .setTable("CHAIN_SUPPLIER_COPY_01");
+            .setPassword("");
+
+    private final DBSourceConnector sink = new StarrocksConnector()
+            .setHost("172.16.5.172")
+            .setHttpPort(8040)
+            .setRpcPort(9030)
+            .setUsername("mar_service_all")
+            .setPassword("Xznn2w19sc2");
 
     /**
      * 查询database
@@ -79,7 +92,7 @@ public class SeaOtterDBTest {
     @Test
     public void queryTable() {
         List<String> databases = seaOtter.db(source)
-                .database("YBT").tables();
+                .database("data_warehouse").tables();
         System.out.println(JSON.toJSONString(databases));
     }
 
@@ -89,8 +102,8 @@ public class SeaOtterDBTest {
     @Test
     public void queryColumns() {
         List<String> databases = seaOtter.db(source)
-                .database("YBT")
-                .table("oracle_user")
+                .database("data_warehouse")
+                .table("bank_user")
                 .columns();
         System.out.println(JSON.toJSONString(databases));
     }
@@ -101,8 +114,8 @@ public class SeaOtterDBTest {
     @Test
     public void preview() {
         List<List<String>> databases = seaOtter.db(source)
-                .database("YBT")
-                .table("oracle_user")
+                .database("data_warehouse")
+                .table("bank_user")
                 .rows(100);
         System.out.println(JSON.toJSONString(databases));
     }
@@ -113,6 +126,40 @@ public class SeaOtterDBTest {
     @Test
     public void createTable() {
         seaOtter.job().from(source).to(sink).createTable();
+    }
+
+    @Test
+    public void migrateDB() {
+        String[] includeDatabases = {"mock_bank"};
+        String[] includeTables = {"canvas_process_run_customer", "customer_group", "sql_run_log"};
+        try (ProgressBar pb = new ProgressBar("processing", 3)) {
+            for (String database : includeDatabases) {
+//                List<String> tables = seaOtter.db(source).database(database).tables();
+                for (String table : includeTables) {
+                    source.setDatabase(database);
+                    source.setTable(table);
+                    sink.setDatabase(database);
+                    sink.setTable(table);
+                    SeaOtterJob seaOtterJob = seaOtter.job().from(source).to(sink);
+//                    seaOtter.db(sink).database(database).table(table).drop();
+//                    seaOtterJob.createTable();
+                    String submitId = seaOtterJob.batchMode(TransmissionMode.OVERWRITE).submit();
+                    while (true) {
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        JobState detail = seaOtter.job().batchMode().detail(submitId);
+                        if (detail != JobState.CREATED && detail!= JobState.RUNNING) {
+                            System.out.printf("database:%s, table:%s, job state:%s%n", database, table, detail.toString());
+                            break;
+                        }
+                    }
+                    pb.step();
+                }
+            }
+        }
     }
 
     /**
@@ -190,7 +237,7 @@ public class SeaOtterDBTest {
 
     @Test
     public void cdcJobCancel() {
-        Boolean bool = seaOtter.job().CDCMode().cancel("392b65a40380e969c53bba8a14a114b3");
+        Boolean bool = seaOtter.job().CDCMode().cancel("221cdd07204a214bfc650e46a1927d5d");
         System.out.println(bool);
     }
 

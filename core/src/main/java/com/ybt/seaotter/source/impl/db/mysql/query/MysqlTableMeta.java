@@ -66,4 +66,9 @@ public class MysqlTableMeta implements TableMeta {
         }
         return rows;
     }
+
+    @Override
+    public void drop() {
+
+    }
 }

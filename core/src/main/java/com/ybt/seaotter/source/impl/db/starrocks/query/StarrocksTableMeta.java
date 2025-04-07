@@ -1,20 +1,21 @@
-package com.ybt.seaotter.source.impl.db.dm.query;
+package com.ybt.seaotter.source.impl.db.starrocks.query;
 
 import com.google.common.collect.Lists;
 import com.ybt.seaotter.exceptions.SeaOtterException;
-import com.ybt.seaotter.source.impl.db.dm.DmConnector;
+import com.ybt.seaotter.source.impl.db.mysql.MysqlConnector;
+import com.ybt.seaotter.source.impl.db.starrocks.StarrocksConnector;
 import com.ybt.seaotter.source.meta.database.TableMeta;
 
 import java.sql.*;
 import java.util.List;
 
-public class DmTableMeta implements TableMeta {
+public class StarrocksTableMeta implements TableMeta {
 
-    private DmConnector connector;
-    private String tableName;
-    private String database;
+    private final StarrocksConnector connector;
+    private final String tableName;
+    private final String database;
 
-    public DmTableMeta(DmConnector connector, String database, String tableName) {
+    public StarrocksTableMeta(StarrocksConnector connector, String database, String tableName) {
         this.connector = connector;
         this.tableName = tableName;
         this.database = database;
@@ -22,19 +23,20 @@ public class DmTableMeta implements TableMeta {
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(String
-                        .format("jdbc:dm://%s:%s/%s", connector.getHost(), connector.getPort(), database),
+                        .format("jdbc:mysql://%s:%s/%s", connector.getHost(), connector.getRpcPort(), database),
                 connector.getUsername(), connector.getPassword());
     }
 
     @Override
     public List<String> columns() {
-        String sql = String.format("SELECT COLUMN_NAME FROM all_tab_columns WHERE Table_Name = '%s'", tableName);
+        String sql = String.format("DESCRIBE %s", tableName);
         List<String> columns = Lists.newArrayList();
         try (Connection connection =  getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
             while (resultSet.next()) {
-                columns.add(resultSet.getString("column_name"));
+                // 假设查询的表有两个字段 id 和 name
+                columns.add(resultSet.getString("Field"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -68,6 +70,13 @@ public class DmTableMeta implements TableMeta {
 
     @Override
     public void drop() {
-
+        String sql = String.format("DROP TABLE %s", tableName);
+        try {
+            Connection connection =  getConnection();
+            Statement statement = connection.createStatement();
+            statement.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

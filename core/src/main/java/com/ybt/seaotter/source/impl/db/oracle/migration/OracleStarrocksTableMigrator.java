@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 
 public class OracleStarrocksTableMigrator implements DataMigrator {
 
-    private OracleConnector source;
-    private StarrocksConnector sink;
-    private Logger logger = LoggerFactory.getLogger(OracleStarrocksTableMigrator.class);
+    private final OracleConnector source;
+    private final StarrocksConnector sink;
+    private final Logger logger = LoggerFactory.getLogger(OracleStarrocksTableMigrator.class);
 
     public OracleStarrocksTableMigrator(OracleConnector source, StarrocksConnector sink) {
         this.source = source;

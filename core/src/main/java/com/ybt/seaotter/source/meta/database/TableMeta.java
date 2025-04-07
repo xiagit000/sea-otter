@@ -5,4 +5,5 @@ import java.util.List;
 public interface TableMeta {
     List<String> columns();
     List<List<String>> rows(Integer limit);
+    void drop();
 }

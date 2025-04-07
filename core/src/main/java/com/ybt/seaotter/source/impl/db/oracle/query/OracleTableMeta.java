@@ -66,4 +66,9 @@ public class OracleTableMeta implements TableMeta {
         }
         return rows;
     }
+
+    @Override
+    public void drop() {
+
+    }
 }

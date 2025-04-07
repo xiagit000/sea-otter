@@ -25,7 +25,17 @@ public class SeaOtterJob {
         return this;
     }
 
+    /**
+     * 创建表结构
+     */
     public void createTable() {
+        source.getDataDefine(target).getMigrator().migrate();
+    }
+
+    /**
+     * 创建表结构更高层次抽象
+     */
+    public void migrateDDL() {
         source.getDataDefine(target).getMigrator().migrate();
     }
 
