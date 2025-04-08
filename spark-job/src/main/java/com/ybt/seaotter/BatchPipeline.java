@@ -42,6 +42,7 @@ public class BatchPipeline {
 
             @Override
             public void onTaskEnd(SparkListenerTaskEnd taskEnd) {
+                if (taskEnd.taskMetrics() == null) return;
                 long inputRecords = taskEnd.taskMetrics().inputMetrics().recordsRead();
                 long outputRecords = taskEnd.taskMetrics().outputMetrics().recordsWritten();
                 System.out.println("Task Completed: Processed " + inputRecords + " input records and " + outputRecords + " output records.");
@@ -166,6 +167,8 @@ public class BatchPipeline {
     private static void saveToStarRocks(Dataset<Row> data, Map<String, String> argsMap) {
         data.write()
                 .format("starrocks")
+                .option("sink.buffer-flush.max-rows", "10000")
+                .option("sink.buffer-flush.max-bytes", "2097152")
                 .option("starrocks.fe.http.url", String.format("%s:%s", argsMap.get("starrocks.host"),
                         argsMap.get("starrocks.httpPort")))
                 .option("starrocks.fe.jdbc.url", String.format("jdbc:mysql://%s:%s", argsMap.get("starrocks.host"),

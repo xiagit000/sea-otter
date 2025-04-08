@@ -66,6 +66,8 @@ public class MysqlStarrocksTableMigrator implements DataMigrator {
             case "datetime":
             case "timestamp":
                 return "datetime";
+            case "enum":
+                return "varchar(100)";
             default:
                 return mysqlType;
         }

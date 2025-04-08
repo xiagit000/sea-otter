@@ -22,13 +22,13 @@ public class SeaOtterDBTest {
 
     private SeaOtter seaOtter;
 
-//    private final SourceConnector source = new MysqlConnector()
-//            .setHost("172.16.2.47")
-//            .setPort(3306)
-//            .setUsername("saas_dba")
-//            .setPassword("@Saas$2023")
-//            .setDatabase("sea_otter")
-//            .setTable("customer");
+    private final SourceConnector source = new MysqlConnector()
+            .setHost("172.16.2.47")
+            .setPort(3306)
+            .setUsername("saas_dba")
+            .setPassword("@Saas$2023")
+            .setDatabase("vas_eshop")
+            .setTable("eshop_crowd_operation_plan_detail");
 
     @Before
     public void init() {
@@ -63,18 +63,20 @@ public class SeaOtterDBTest {
 //            .setUsername("root")
 //            .setPassword("");
 
-    private final DBSourceConnector source = new MysqlConnector()
-            .setHost("172.16.1.51")
-            .setPort(9030)
-            .setUsername("root")
-            .setPassword("");
+//    private final DBSourceConnector source = new MysqlConnector()
+//            .setHost("172.16.1.51")
+//            .setPort(9030)
+//            .setUsername("root")
+//            .setPassword("");
 
     private final DBSourceConnector sink = new StarrocksConnector()
             .setHost("172.16.5.172")
             .setHttpPort(8040)
             .setRpcPort(9030)
             .setUsername("mar_service_all")
-            .setPassword("Xznn2w19sc2");
+            .setPassword("Xznn2w19sc2")
+            .setDatabase("data_warehouse")
+            .setTable("eshop_crowd_operation_plan_detail");
 
     /**
      * 查询database
@@ -131,31 +133,32 @@ public class SeaOtterDBTest {
     @Test
     public void migrateDB() {
         String[] includeDatabases = {"mock_bank"};
-        String[] includeTables = {"canvas_process_run_customer", "customer_group", "sql_run_log"};
-        try (ProgressBar pb = new ProgressBar("processing", 3)) {
+        String[] includeTables = {"customer_group"};
+        try (ProgressBar pb = new ProgressBar("processing", 1)) {
             for (String database : includeDatabases) {
 //                List<String> tables = seaOtter.db(source).database(database).tables();
                 for (String table : includeTables) {
-                    source.setDatabase(database);
-                    source.setTable(table);
+//                    source.setDatabase(database);
+//                    source.setTable(table);
                     sink.setDatabase(database);
                     sink.setTable(table);
                     SeaOtterJob seaOtterJob = seaOtter.job().from(source).to(sink);
 //                    seaOtter.db(sink).database(database).table(table).drop();
-//                    seaOtterJob.createTable();
-                    String submitId = seaOtterJob.batchMode(TransmissionMode.OVERWRITE).submit();
-                    while (true) {
-                        try {
-                            Thread.sleep(3000);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                        JobState detail = seaOtter.job().batchMode().detail(submitId);
-                        if (detail != JobState.CREATED && detail!= JobState.RUNNING) {
-                            System.out.printf("database:%s, table:%s, job state:%s%n", database, table, detail.toString());
-                            break;
-                        }
-                    }
+                    seaOtterJob.createTable();
+//                    String submitId = seaOtterJob.batchMode(TransmissionMode.UPSERT)
+//                            .filter("create_time", "2025-04-07 00:21:01").submit();
+//                    while (true) {
+//                        try {
+//                            Thread.sleep(3000);
+//                        } catch (InterruptedException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                        JobState detail = seaOtter.job().batchMode().detail(submitId);
+//                        if (detail != JobState.CREATED && detail!= JobState.RUNNING) {
+//                            System.out.printf("database:%s, table:%s, job state:%s%n", database, table, detail.toString());
+//                            break;
+//                        }
+//                    }
                     pb.step();
                 }
             }

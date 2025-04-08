@@ -17,25 +17,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SparkClient {
-    private final SourceConnector source;
-    private final SourceConnector target;
+    private SourceConnector source;
+    private SourceConnector target;
     private final SparkOptions sparkOptions;
-    private final String upsertColumn;
-    private final String columnVal;
-    private final String callbackUrl;
-    private final String callbackTag;
+    private String upsertColumn;
+    private String columnVal;
+    private String callbackUrl;
+    private String callbackTag;
     private final SparkRestClient sparkRestClient;
     private final static String SPARK_JARS_PATH = "/opt/jars";
     private final Logger logger = org.slf4j.LoggerFactory.getLogger(SparkClient.class);
+    private final SeaOtterBatchJob seaOtterBatchJob;
 
     public SparkClient(SeaOtterBatchJob  seaOtterBatchJob) {
-        this.source = seaOtterBatchJob.getSeaOtterSync().getSource();
-        this.target = seaOtterBatchJob.getSeaOtterSync().getTarget();
+        this.seaOtterBatchJob = seaOtterBatchJob;
         this.sparkOptions = seaOtterBatchJob.getSeaOtterSync().getConfig().getSparkOptions();
-        this.upsertColumn = seaOtterBatchJob.getUpsertColumn();
-        this.columnVal = seaOtterBatchJob.getColumnVal();
-        this.callbackUrl = seaOtterBatchJob.getSeaOtterSync().getCallbackUrl();
-        this.callbackTag = seaOtterBatchJob.getSeaOtterSync().getCallbackTag();
         this.sparkRestClient = SparkRestClient.builder()
                 .masterHost(sparkOptions.getHost())
                 .masterPort(sparkOptions.getPort())
@@ -43,7 +39,17 @@ public class SparkClient {
                 .build();
     }
 
+    public void init() {
+        this.source = seaOtterBatchJob.getSeaOtterSync().getSource();
+        this.target = seaOtterBatchJob.getSeaOtterSync().getTarget();
+        this.upsertColumn = seaOtterBatchJob.getUpsertColumn();
+        this.columnVal = seaOtterBatchJob.getColumnVal();
+        this.callbackUrl = seaOtterBatchJob.getSeaOtterSync().getCallbackUrl();
+        this.callbackTag = seaOtterBatchJob.getSeaOtterSync().getCallbackTag();
+    }
+
     public String submit() {
+        init();
         final String submissionId;
         try {
             List<String> args = Lists.newArrayList();
@@ -66,8 +72,10 @@ public class SparkClient {
                     .appArgs(args)
                     .withProperties()
                     .put("spark.driver.memory", "1g")
+                    .put("spark.driver.memoryOverhead", "2g")
                     .put("spark.driver.cores", "1")
-                    .put("spark.executor.memory", "2g")
+                    .put("spark.executor.memory", "4g")
+                    .put("spark.executor.memoryOverhead", "1g")
                     .put("spark.executor.instances", "1")
                     .put("spark.executor.cores", "1")
                     .put("spark.jars",
