@@ -1,6 +1,7 @@
 package com.ybt.seaotter.source.impl.db.mysql.migration;
 
 import com.github.melin.superior.sql.parser.mysql.MySqlHelper;
+import com.google.common.collect.Lists;
 import com.ybt.seaotter.exceptions.SeaOtterException;
 import com.ybt.seaotter.source.ddl.DataMigrator;
 import com.ybt.seaotter.source.impl.db.mysql.MysqlConnector;
@@ -61,15 +62,19 @@ public class MysqlStarrocksTableMigrator implements DataMigrator {
     }
 
     public String convertColumnType(String mysqlType) {
-        switch (mysqlType.toLowerCase()) {
-            case "date":
-            case "datetime":
-            case "timestamp":
-                return "datetime";
-            case "enum":
-                return "varchar(100)";
-            default:
-                return mysqlType;
+        String mysqlTypeLower = mysqlType.toLowerCase();
+        if (Lists.newArrayList("date", "datetime", "timestamp").contains(mysqlTypeLower)) {
+            return "datetime";
+        } else if (mysqlTypeLower.startsWith("enum")) {
+            return "varchar(100)";
+        } else if (mysqlTypeLower.startsWith("double")) {
+            return "DOUBLE";
+        } else if (mysqlTypeLower.startsWith("float")) {
+            return "FLOAT";
+        } else if (mysqlTypeLower.startsWith("decimal")) {
+            return "DECIMAL";
+        } else {
+            return mysqlType;
         }
     }
 }

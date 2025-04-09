@@ -72,7 +72,7 @@ public class SparkClient {
                     .appArgs(args)
                     .withProperties()
                     .put("spark.driver.memory", "1g")
-                    .put("spark.driver.memoryOverhead", "2g")
+                    .put("spark.driver.memoryOverhead", "1g")
                     .put("spark.driver.cores", "1")
                     .put("spark.executor.memory", "4g")
                     .put("spark.executor.memoryOverhead", "1g")

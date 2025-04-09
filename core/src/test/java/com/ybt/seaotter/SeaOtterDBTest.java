@@ -28,7 +28,7 @@ public class SeaOtterDBTest {
             .setUsername("saas_dba")
             .setPassword("@Saas$2023")
             .setDatabase("vas_eshop")
-            .setTable("eshop_crowd_operation_plan_detail");
+            .setTable("eshop_crowd_operation_plan_reword");
 
     @Before
     public void init() {
@@ -76,7 +76,7 @@ public class SeaOtterDBTest {
             .setUsername("mar_service_all")
             .setPassword("Xznn2w19sc2")
             .setDatabase("data_warehouse")
-            .setTable("eshop_crowd_operation_plan_detail");
+            .setTable("eshop_crowd_operation_plan_reword");
 
     /**
      * 查询database
