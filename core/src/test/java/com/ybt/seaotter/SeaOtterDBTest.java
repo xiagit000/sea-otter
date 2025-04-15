@@ -27,15 +27,15 @@ public class SeaOtterDBTest {
             .setPort(3306)
             .setUsername("saas_dba")
             .setPassword("@Saas$2023")
-            .setDatabase("vas_eshop")
-            .setTable("eshop_crowd_operation_plan_reword");
+            .setDatabase("search_boot")
+            .setTable("sys_analyze_dict");
 
     @Before
     public void init() {
         SeaOtterConfig seaOtterConfig = SeaOtterConfig.builder()
                 .sparkOptions(new SparkOptions("172.16.5.170", 6066))
-                .flinkOptions(new FlinkOptions("172.16.5.170", 8081))
-                .callback("http://192.168.10.5:9090/api/callback")
+                .flinkOptions(new FlinkOptions("127.0.0.1", 8081))
+                .callback(null)
                 .build();
         seaOtter = SeaOtter.config(seaOtterConfig);
     }
@@ -76,7 +76,7 @@ public class SeaOtterDBTest {
             .setUsername("mar_service_all")
             .setPassword("Xznn2w19sc2")
             .setDatabase("data_warehouse")
-            .setTable("eshop_crowd_operation_plan_reword");
+            .setTable("sys_analyze_dict");
 
     /**
      * 查询database
@@ -187,11 +187,11 @@ public class SeaOtterDBTest {
     @Test
     public void cdcJob() {
         System.out.println(seaOtter.job()
-                    .jobName("mysql to starrocks 1")
+                    .jobName("mysql to starrocks 3")
                     .tag("CDC123456") // 业务关联标签
                     .from(source).to(sink)
                     .CDCMode()
-                        .serverId("5800")
+                        .serverId("5401-5405")
                     .submit());
     }
 

@@ -10,21 +10,19 @@ import com.ybt.seaotter.common.JobCallback;
 import com.ybt.seaotter.common.enums.JobState;
 import com.ybt.seaotter.common.pojo.JobCallbackMessage;
 import com.ybt.seaotter.deserialization.MyDebeziumDeserializationSchema;
-import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.cdc.connectors.mysql.source.MySqlSource;
-import org.apache.flink.core.execution.JobClient;
-import org.apache.flink.core.execution.JobListener;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
 public class CDCPipeline {
@@ -36,11 +34,18 @@ public class CDCPipeline {
 
         ParameterTool params = ParameterTool.fromArgs(args);
         Map<String, String> argMap = params.toMap();
-        logger.info("################ args ################### ");
+        logger.info("################ args-111 ################### ");
         for (Map.Entry<String, String> entry : argMap.entrySet()) {
             logger.info("{} : {}", entry.getKey(), entry.getValue());
         }
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+//        env.setParallelism(1);
+//        env.enableCheckpointing(30000);
+
+        Properties properties = new Properties();
+        properties.setProperty("snapshot.locking.mode", "none");
+        properties.setProperty("scan.incremental.snapshot.enabled", "true");
+
         MySqlSource<String> mysqlSource = MySqlSource.<String>builder()
                 .hostname(argMap.get("mysql.host"))
                 .port(Integer.parseInt(argMap.get("mysql.port")))
@@ -51,6 +56,8 @@ public class CDCPipeline {
                 .serverId(argMap.get("flink.serverId"))
                 .serverTimeZone("Asia/Shanghai")
                 .deserializer(new MyDebeziumDeserializationSchema())
+                .debeziumProperties(properties)
+                .heartbeatInterval(Duration.ofMillis(1000))
                 .build();
 
         DataStreamSource<String> sourceStream = env.fromSource(mysqlSource,
@@ -77,25 +84,25 @@ public class CDCPipeline {
                  * 2.__op = 1 代表是删除操作，__op = 0 代表是插入或者更新操作
                  * 3.下游字段取值， changeLog 这个是一个json结构，下游字段名称和json的key匹配的（字段一样的）会写入数据库，不匹配的字段将自动丢弃。
                  */
-                System.out.println(changeLog);
+//                System.out.println("changLog: " + changeLog);
                 rowDataWithMeta.addDataRow(changeLog);
                 alreadyHandleRecords += 1;
-                CompletableFuture.runAsync(() -> {
-                    LocalDateTime now = LocalDateTime.now();
-                    if (now.isAfter(lastCallbackTime.plusSeconds(CALLBACK_DURATION))) {
-                        lastCallbackTime = now;
-                        String callbackUrl = argMap.get("callback.url");
-                        if (!Strings.isNullOrEmpty(callbackUrl)) {
-                            JobCallbackMessage jobCallbackMessage = new JobCallbackMessage(argMap.get("callback.tag"),
-                                    JobState.RUNNING, 0L, alreadyHandleRecords);
-                            JobCallback.url(callbackUrl).callback(jobCallbackMessage);
-                        }
-                    }
-                });
+//                CompletableFuture.runAsync(() -> {
+//                    LocalDateTime now = LocalDateTime.now();
+//                    if (now.isAfter(lastCallbackTime.plusSeconds(CALLBACK_DURATION))) {
+//                        lastCallbackTime = now;
+//                        String callbackUrl = argMap.get("callback.url");
+//                        if (!Strings.isNullOrEmpty(callbackUrl)) {
+//                            JobCallbackMessage jobCallbackMessage = new JobCallbackMessage(argMap.get("callback.tag"),
+//                                    JobState.RUNNING, 0L, alreadyHandleRecords);
+//                            JobCallback.url(callbackUrl).callback(jobCallbackMessage);
+//                        }
+//                    }
+//                });
                 return rowDataWithMeta;
             }
         });
-        mysqlStream.print();
+//        mysqlStream.print();
         mysqlStream.addSink(new StarRocksDynamicSinkFunction<>((new StarRocksSinkOptions.Builder()
                 .withProperty("jdbc-url", String.format("jdbc:mysql://%s:%s", argMap.get("starrocks.host"),
                         argMap.get("starrocks.rpcPort")))
