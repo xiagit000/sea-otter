@@ -87,18 +87,18 @@ public class CDCPipeline {
 //                System.out.println("changLog: " + changeLog);
                 rowDataWithMeta.addDataRow(changeLog);
                 alreadyHandleRecords += 1;
-//                CompletableFuture.runAsync(() -> {
-//                    LocalDateTime now = LocalDateTime.now();
-//                    if (now.isAfter(lastCallbackTime.plusSeconds(CALLBACK_DURATION))) {
-//                        lastCallbackTime = now;
-//                        String callbackUrl = argMap.get("callback.url");
-//                        if (!Strings.isNullOrEmpty(callbackUrl)) {
-//                            JobCallbackMessage jobCallbackMessage = new JobCallbackMessage(argMap.get("callback.tag"),
-//                                    JobState.RUNNING, 0L, alreadyHandleRecords);
-//                            JobCallback.url(callbackUrl).callback(jobCallbackMessage);
-//                        }
-//                    }
-//                });
+                CompletableFuture.runAsync(() -> {
+                    LocalDateTime now = LocalDateTime.now();
+                    if (now.isAfter(lastCallbackTime.plusSeconds(CALLBACK_DURATION))) {
+                        lastCallbackTime = now;
+                        String callbackUrl = argMap.get("callback.url");
+                        if (!Strings.isNullOrEmpty(callbackUrl)) {
+                            JobCallbackMessage jobCallbackMessage = new JobCallbackMessage(argMap.get("callback.tag"),
+                                    JobState.RUNNING, 0L, alreadyHandleRecords);
+                            JobCallback.url(callbackUrl).callback(jobCallbackMessage);
+                        }
+                    }
+                });
                 return rowDataWithMeta;
             }
         });

@@ -22,13 +22,13 @@ public class SeaOtterDBTest {
 
     private SeaOtter seaOtter;
 
-    private final SourceConnector source = new MysqlConnector()
-            .setHost("172.16.2.47")
-            .setPort(3306)
-            .setUsername("saas_dba")
-            .setPassword("@Saas$2023")
-            .setDatabase("search_boot")
-            .setTable("sys_analyze_dict");
+//    private final SourceConnector source = new MysqlConnector()
+//            .setHost("172.16.2.47")
+//            .setPort(3306)
+//            .setUsername("saas_dba")
+//            .setPassword("@Saas$2023")
+//            .setDatabase("search_boot")
+//            .setTable("sys_analyze_dict");
 
     @Before
     public void init() {
@@ -69,13 +69,22 @@ public class SeaOtterDBTest {
 //            .setUsername("root")
 //            .setPassword("");
 
-    private final DBSourceConnector sink = new StarrocksConnector()
+    private final DBSourceConnector source = new StarrocksConnector()
             .setHost("172.16.5.172")
             .setHttpPort(8040)
             .setRpcPort(9030)
             .setUsername("mar_service_all")
             .setPassword("Xznn2w19sc2")
-            .setDatabase("data_warehouse")
+            .setDatabase("mock_bank")
+            .setTable("sys_analyze_dict");
+
+    private final DBSourceConnector sink = new StarrocksConnector()
+            .setHost("192.168.10.182")
+            .setHttpPort(8040)
+            .setRpcPort(9030)
+            .setUsername("root")
+            .setPassword("123456")
+            .setDatabase("mock_bank")
             .setTable("sys_analyze_dict");
 
     /**
@@ -133,13 +142,13 @@ public class SeaOtterDBTest {
     @Test
     public void migrateDB() {
         String[] includeDatabases = {"mock_bank"};
-        String[] includeTables = {"customer_group"};
-        try (ProgressBar pb = new ProgressBar("processing", 1)) {
+//        String[] includeTables = {"customer_group"};
+        try (ProgressBar pb = new ProgressBar("processing", 28)) {
             for (String database : includeDatabases) {
-//                List<String> tables = seaOtter.db(source).database(database).tables();
-                for (String table : includeTables) {
-//                    source.setDatabase(database);
-//                    source.setTable(table);
+                List<String> tables = seaOtter.db(source).database(database).tables();
+                for (String table : tables) {
+                    source.setDatabase(database);
+                    source.setTable(table);
                     sink.setDatabase(database);
                     sink.setTable(table);
                     SeaOtterJob seaOtterJob = seaOtter.job().from(source).to(sink);
