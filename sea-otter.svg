@@ -1,0 +1,30 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- 六边形整体填充和边框颜色一致 -->
+    <polygon points="100,20 170,60 170,140 100,180 30,140 30,60"
+             fill="#007ACC" stroke="#007ACC" stroke-width="4"/>
+
+    <!-- 中间菱形层 1（最底层，放大） -->
+    <polygon points="100,65 140,100 100,135 60,100"
+             fill="none" stroke="#E0F7FF" stroke-width="3"/>
+
+    <!-- 中间菱形层 2（中间层，放大） -->
+    <polygon points="100,60 140,95 100,130 60,95"
+             fill="none" stroke="#E0F7FF" stroke-width="2.5"/>
+
+    <!-- 中间菱形层 3（最上层，放大） -->
+    <polygon points="100,55 140,90 100,125 60,90"
+             fill="none" stroke="#E0F7FF" stroke-width="2"/>
+
+    <!-- 中心极简小海獭（放大） -->
+    <g transform="translate(100,100) scale(0.8)">
+        <!-- 身体 -->
+        <ellipse cx="0" cy="0" rx="10" ry="15" fill="#E0F7FF"/>
+        <!-- 头 -->
+        <circle cx="0" cy="-12" r="7" fill="#E0F7FF"/>
+        <!-- 眼睛 -->
+        <circle cx="-2.5" cy="-13" r="1.5" fill="#007ACC"/>
+        <circle cx="2.5" cy="-13" r="1.5" fill="#007ACC"/>
+        <!-- 尾巴 -->
+        <polygon points="-7,10 0,14 7,10" fill="#E0F7FF"/>
+    </g>
+</svg>
