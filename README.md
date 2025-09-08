@@ -1,6 +1,6 @@
 <div align="center">
-         <a href="https://dtstack.github.io/Taier/" target="_blank" rel="noopener noreferrer">
-           <img src="sea-otter.svg" width="20%" height="20%" alt="sea-otter Logo" />
+         <a href="https://e.gitee.com/vibot/repos/vibot/sea-otter" target="_blank" rel="noopener noreferrer">
+           <img src="logo.svg" width="20%" height="20%" alt="sea-otter Logo" />
         </a>
  <h1>SeaOtter</h1>
  <h3>海獭--企业级多源异构数据集成引擎</h3>
