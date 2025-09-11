@@ -94,30 +94,17 @@ private final SourceConnector sink = new StarrocksConnector()
 ```java
 // 批处理全量同步
 seaOtter.job()
-    .
-
-from(source).
-
-to(sink)
-    .
-
-batchMode(TransmissionMode.OVERWRITE)
-    .
-
-submit()
+    .from(source)
+    .to(sink)
+    .batchMode(TransmissionMode.OVERWRITE)
+    .submit()
 
 // 实时同步
-seaOtter.
-
-job().
-
-from(source).
-
-to(sink).
-
-CDCMode().
-
-submit()
+seaOtter.job()
+    .from(source)
+    .to(sink)
+    .CDCMode()
+    .submit()
 ```
 
 ### 数据源操作
