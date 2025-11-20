@@ -129,8 +129,9 @@ public class StarrocksConnector implements DBSourceConnector {
         return replicationNum;
     }
 
-    public void setReplicationNum(Integer replicationNum) {
+    public StarrocksConnector setReplicationNum(Integer replicationNum) {
         this.replicationNum = replicationNum;
+        return this;
     }
 
     @Override
