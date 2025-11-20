@@ -51,7 +51,7 @@ public class MysqlStarrocksTableMigrator implements DataMigrator {
             throw new SeaOtterException(e.getMessage());
         }
         CreateTable statement = (CreateTable) MySqlHelper.parseStatement(mysqlCreateSql);
-        String createTableSQL = StarRocksUtils.generateTableCreateSql(statement, sink.getTable(), this::convertColumnType);
+        String createTableSQL = StarRocksUtils.generateTableCreateSql(statement, sink.getTable(), this::convertColumnType, sink.getReplicationNum());
         try (Connection sinkConnection =  getSinkConnection();
              Statement sinkStatement = sinkConnection.createStatement()) {
             logger.info("MYSQL create table sql: {}", createTableSQL);

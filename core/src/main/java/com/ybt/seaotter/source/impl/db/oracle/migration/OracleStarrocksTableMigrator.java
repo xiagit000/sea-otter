@@ -52,7 +52,7 @@ public class OracleStarrocksTableMigrator implements DataMigrator {
             throw new SeaOtterException(e.getMessage());
         }
         CreateTable statement = (CreateTable) OracleSqlHelper.parseStatement(mysqlCreateSql);
-        String createTableSQL = StarRocksUtils.generateTableCreateSql(statement, sink.getTable(), this::convertColumnType);
+        String createTableSQL = StarRocksUtils.generateTableCreateSql(statement, sink.getTable(), this::convertColumnType, sink.getReplicationNum());
         try (Connection sinkConnection =  getSinkConnection();
              Statement sinkStatement = sinkConnection.createStatement()) {
             logger.info("Oracle create table sql: {}", createTableSQL);

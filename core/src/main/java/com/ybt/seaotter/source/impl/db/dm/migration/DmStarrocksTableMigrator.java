@@ -50,7 +50,7 @@ public class DmStarrocksTableMigrator implements DataMigrator {
             throw new SeaOtterException(e.getMessage());
         }
         CreateTable statement = DmSqlHelper.parseCreateTableStatement(mysqlCreateSql);
-        String createTableSQL = StarRocksUtils.generateTableCreateSql(statement, sink.getTable(), this::convertColumnType);
+        String createTableSQL = StarRocksUtils.generateTableCreateSql(statement, sink.getTable(), this::convertColumnType, sink.getReplicationNum());
         try (Connection sinkConnection =  getSinkConnection();
              Statement sinkStatement = sinkConnection.createStatement()) {
             System.out.println(createTableSQL);

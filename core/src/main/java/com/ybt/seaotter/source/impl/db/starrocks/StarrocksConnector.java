@@ -28,6 +28,7 @@ public class StarrocksConnector implements DBSourceConnector {
     private String password;
     private String database;
     private String table;
+    private Integer replicationNum = 3;
 
     public StarrocksConnector() {
     }
@@ -48,6 +49,17 @@ public class StarrocksConnector implements DBSourceConnector {
         this.password = password;
         this.database = database;
         this.table = table;
+    }
+
+    public StarrocksConnector(String host, Integer httpPort, Integer rpcPort, String username, String password, String database, String table, Integer replicationNum) {
+        this.host = host;
+        this.httpPort = httpPort;
+        this.rpcPort = rpcPort;
+        this.username = username;
+        this.password = password;
+        this.database = database;
+        this.table = table;
+        this.replicationNum = replicationNum;
     }
 
     public String getHost() {
@@ -113,6 +125,14 @@ public class StarrocksConnector implements DBSourceConnector {
         return this;
     }
 
+    public Integer getReplicationNum() {
+        return replicationNum;
+    }
+
+    public void setReplicationNum(Integer replicationNum) {
+        this.replicationNum = replicationNum;
+    }
+
     @Override
     public String getName() {
         return DataSourceType.STARROCKS.name();
@@ -132,7 +152,8 @@ public class StarrocksConnector implements DBSourceConnector {
                 String.format("--starrocks.username %s", username),
                 String.format("--starrocks.password %s", password),
                 String.format("--starrocks.database %s", database),
-                String.format("--starrocks.table %s", table)
+                String.format("--starrocks.table %s", table),
+                String.format("--starrocks.replicationNum %s", replicationNum),
         };
     }
 
@@ -145,4 +166,5 @@ public class StarrocksConnector implements DBSourceConnector {
     public DataDefine getDataDefine(SourceConnector sink) {
         return new StarrocksDefine(this, sink);
     }
+
 }
