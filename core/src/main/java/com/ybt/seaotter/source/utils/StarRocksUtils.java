@@ -33,7 +33,7 @@ public class StarRocksUtils {
             createTableSQL.append(String.join("`, `", columns));
             createTableSQL.append("`)");
 
-            createTableSQL.append(String.format(" PROPERTIES ('replication_num' = %s)", replication_num));
+            createTableSQL.append(String.format(" PROPERTIES ('replication_num' = '%s')", replication_num));
         }
         return createTableSQL.toString();
     }
