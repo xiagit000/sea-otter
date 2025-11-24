@@ -1,5 +1,5 @@
 package com.ybt.seaotter.common.enums;
 
 public enum DataSourceType {
-    MYSQL, DM, ORACLE, FTP, SFTP, STARROCKS
+    MYSQL, DM, ORACLE, FTP, SFTP, STARROCKS, HOLOGRES
 }

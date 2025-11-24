@@ -9,6 +9,7 @@ import com.ybt.seaotter.config.SparkOptions;
 import com.ybt.seaotter.source.connector.DBSourceConnector;
 import com.ybt.seaotter.source.connector.SourceConnector;
 import com.ybt.seaotter.source.impl.db.dm.DmConnector;
+import com.ybt.seaotter.source.impl.db.hologres.HologresConnector;
 import com.ybt.seaotter.source.impl.db.mysql.MysqlConnector;
 import com.ybt.seaotter.source.impl.db.starrocks.StarrocksConnector;
 import me.tongfei.progressbar.ProgressBar;
@@ -78,12 +79,20 @@ public class SeaOtterDBTest {
             .setDatabase("mock_bank")
             .setTable("sys_analyze_dict");
 
-    private final DBSourceConnector sink = new StarrocksConnector()
-            .setHost("192.168.10.182")
-            .setHttpPort(8040)
-            .setRpcPort(9030)
-            .setUsername("root")
-            .setPassword("123456")
+//    private final DBSourceConnector sink = new StarrocksConnector()
+//            .setHost("192.168.10.182")
+//            .setHttpPort(8040)
+//            .setRpcPort(9030)
+//            .setUsername("root")
+//            .setPassword("123456")
+//            .setDatabase("mock_bank")
+//            .setTable("sys_analyze_dict");
+
+    private final DBSourceConnector sink = new HologresConnector()
+            .setHost("hgpostcn-cn-kd54j5i9e047-cn-hangzhou.hologres.aliyuncs.com")
+            .setPort(80)
+            .setUsername("BASIC$xy")
+            .setPassword("Xy@123456")
             .setDatabase("mock_bank")
             .setTable("sys_analyze_dict");
 
@@ -92,7 +101,7 @@ public class SeaOtterDBTest {
      */
     @Test
     public void queryDatabase() {
-        List<String> databases = seaOtter.db(source)
+        List<String> databases = seaOtter.db(sink)
                 .databases();
         System.out.println(JSON.toJSONString(databases));
     }
@@ -102,8 +111,8 @@ public class SeaOtterDBTest {
      */
     @Test
     public void queryTable() {
-        List<String> databases = seaOtter.db(source)
-                .database("data_warehouse").tables();
+        List<String> databases = seaOtter.db(sink)
+                .database("mock_bank").tables();
         System.out.println(JSON.toJSONString(databases));
     }
 
@@ -112,9 +121,9 @@ public class SeaOtterDBTest {
      */
     @Test
     public void queryColumns() {
-        List<String> databases = seaOtter.db(source)
-                .database("data_warehouse")
-                .table("bank_user")
+        List<String> databases = seaOtter.db(sink)
+                .database("mock_bank")
+                .table("customer")
                 .columns();
         System.out.println(JSON.toJSONString(databases));
     }
@@ -124,9 +133,9 @@ public class SeaOtterDBTest {
      */
     @Test
     public void preview() {
-        List<List<String>> databases = seaOtter.db(source)
-                .database("data_warehouse")
-                .table("bank_user")
+        List<List<String>> databases = seaOtter.db(sink)
+                .database("mock_bank")
+                .table("customer")
                 .rows(100);
         System.out.println(JSON.toJSONString(databases));
     }
