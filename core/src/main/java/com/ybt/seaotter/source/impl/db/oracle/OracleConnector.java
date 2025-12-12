@@ -2,13 +2,18 @@ package com.ybt.seaotter.source.impl.db.oracle;
 
 import com.ybt.seaotter.common.enums.DataSourceType;
 import com.ybt.seaotter.config.SeaOtterConfig;
+import com.ybt.seaotter.exceptions.SeaOtterException;
 import com.ybt.seaotter.source.connector.DBSourceConnector;
 import com.ybt.seaotter.source.connector.SourceConnector;
 import com.ybt.seaotter.source.ddl.DataDefine;
+import com.ybt.seaotter.source.impl.db.dm.sql.CreateTable;
 import com.ybt.seaotter.source.impl.db.oracle.migration.OracleDefine;
 import com.ybt.seaotter.source.impl.db.oracle.query.OracleMeta;
+import com.ybt.seaotter.source.meta.Schema;
 import com.ybt.seaotter.source.meta.database.DBMeta;
+import io.github.melin.superior.parser.oracle.OracleSqlHelper;
 
+import java.sql.*;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -54,6 +59,8 @@ public class OracleConnector implements DBSourceConnector {
     public DataDefine getDataDefine(SourceConnector sink) {
         return new OracleDefine(this, sink);
     }
+
+
 
     public String getHost() {
         return host;
@@ -116,5 +123,37 @@ public class OracleConnector implements DBSourceConnector {
     public OracleConnector setTable(String table) {
         this.table = table;
         return this;
+    }
+
+    @Override
+    public Connection getConnection() {
+        try {
+            return DriverManager.getConnection(String.format("jdbc:oracle:thin:@%s:%s:%s", host, port, sid), username, password);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Schema getSchema() {
+        String sql = String.format("SELECT DBMS_METADATA.GET_DDL('TABLE', '%s', '%s') FROM DUAL", table, database);
+        String mysqlCreateSql = "";
+        try (Connection connection =  getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            while (resultSet.next()) {
+                mysqlCreateSql = resultSet.getString(1);
+            }
+        } catch (SQLException e) {
+            throw new SeaOtterException(e.getMessage());
+        }
+        CreateTable statement = new CreateTable(
+                (io.github.melin.superior.common.relational.create.CreateTable) OracleSqlHelper.parseStatement(mysqlCreateSql));
+        return new Schema(getName(), statement);
+    }
+
+    @Override
+    public boolean createSchema(Schema schema) {
+        return false;
     }
 }

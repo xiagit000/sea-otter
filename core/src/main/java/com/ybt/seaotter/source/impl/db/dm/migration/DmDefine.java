@@ -8,6 +8,10 @@ import com.ybt.seaotter.source.ddl.DataMigrator;
 import com.ybt.seaotter.source.impl.db.dm.DmConnector;
 import com.ybt.seaotter.source.impl.db.starrocks.StarrocksConnector;
 
+/**
+ * 该实现已废弃，采用更高层次的抽象实现，后期删除
+ */
+@Deprecated
 public class DmDefine implements DataDefine {
     private SourceConnector source;
     private SourceConnector sink;

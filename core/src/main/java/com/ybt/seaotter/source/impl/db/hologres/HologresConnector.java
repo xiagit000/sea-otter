@@ -7,7 +7,12 @@ import com.ybt.seaotter.source.connector.SourceConnector;
 import com.ybt.seaotter.source.ddl.DataDefine;
 import com.ybt.seaotter.source.impl.db.hologres.migration.HologresDefine;
 import com.ybt.seaotter.source.impl.db.hologres.query.HologresMeta;
+import com.ybt.seaotter.source.meta.Schema;
 import com.ybt.seaotter.source.meta.database.DBMeta;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class HologresConnector implements DBSourceConnector {
     private String host;
@@ -100,6 +105,15 @@ public class HologresConnector implements DBSourceConnector {
     }
 
     @Override
+    public Connection getConnection() {
+        try {
+            return DriverManager.getConnection(String.format("jdbc:postgresql://%s:%s/%s", host, port, database),username, password);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public String getName() {
         return DataSourceType.HOLOGRES.name();
     }
@@ -129,6 +143,17 @@ public class HologresConnector implements DBSourceConnector {
     @Override
     public DataDefine getDataDefine(SourceConnector sink) {
         return new HologresDefine(this, sink);
+    }
+
+    @Override
+    public Schema getSchema() {
+
+        return null;
+    }
+
+    @Override
+    public boolean createSchema(Schema schema) {
+        return false;
     }
 
 }

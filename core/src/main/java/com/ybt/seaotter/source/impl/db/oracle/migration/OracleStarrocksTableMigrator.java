@@ -8,6 +8,7 @@ import com.ybt.seaotter.source.utils.StarRocksUtils;
 import io.github.melin.superior.common.relational.create.CreateTable;
 import io.github.melin.superior.common.relational.table.ColumnRel;
 import io.github.melin.superior.parser.oracle.OracleSqlHelper;
+import io.github.melin.superior.parser.starrocks.StarRocksHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

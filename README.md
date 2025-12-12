@@ -124,6 +124,11 @@ List<FileObject> files = seaOtter.file(source).list("/", Lists.newArrayList("txt
 ...
 ```
 
+## 发布
+在本地构建打包spark和flink的任务jar包，然后进行上传操作。
+- spark: 可根据实际情况上传到共享目录中，各work会自动拉取
+- flink: 则可以通过web界面手动上传jar包
+
 ## 计划支持的数据库
 
 1. [MySQL](https://github.com/antlr/grammars-v4/tree/master/sql/mysql)

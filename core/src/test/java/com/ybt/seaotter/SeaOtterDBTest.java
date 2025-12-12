@@ -23,18 +23,19 @@ public class SeaOtterDBTest {
 
     private SeaOtter seaOtter;
 
-//    private final SourceConnector source = new MysqlConnector()
-//            .setHost("172.16.2.47")
-//            .setPort(3306)
-//            .setUsername("saas_dba")
-//            .setPassword("@Saas$2023")
-//            .setDatabase("search_boot")
-//            .setTable("sys_analyze_dict");
+    private final DBSourceConnector source = new MysqlConnector()
+            .setHost("172.16.2.47")
+            .setPort(3306)
+            .setUsername("saas_dba")
+            .setPassword("@Saas$2023")
+            .setDatabase("search_boot")
+            .setTable("sys_analyze_type");
 
     @Before
     public void init() {
         SeaOtterConfig seaOtterConfig = SeaOtterConfig.builder()
-                .sparkOptions(new SparkOptions("172.16.5.170", 6066))
+//                .sparkOptions(new SparkOptions("172.16.5.170", 6066))
+                .sparkOptions(new SparkOptions("127.0.0.1", 6066))
                 .flinkOptions(new FlinkOptions("127.0.0.1", 8081))
                 .callback(null)
                 .build();
@@ -57,6 +58,7 @@ public class SeaOtterDBTest {
 //            .setSid("xe")
 //            .setDatabase("YBT")
 //            .setTable("ORACLE_USER");
+
 //    private final DBSourceConnector source = new StarrocksConnector()
 //            .setHost("172.16.1.51")
 //            .setHttpPort(8080)
@@ -70,14 +72,14 @@ public class SeaOtterDBTest {
 //            .setUsername("root")
 //            .setPassword("");
 
-    private final DBSourceConnector source = new StarrocksConnector()
-            .setHost("172.16.5.172")
-            .setHttpPort(8040)
-            .setRpcPort(9030)
-            .setUsername("mar_service_all")
-            .setPassword("Xznn2w19sc2")
-            .setDatabase("mock_bank")
-            .setTable("sys_analyze_dict");
+//    private final DBSourceConnector source = new StarrocksConnector()
+//            .setHost("172.16.5.172")
+//            .setHttpPort(8040)
+//            .setRpcPort(9030)
+//            .setUsername("mar_service_all")
+//            .setPassword("Xznn2w19sc2")
+//            .setDatabase("mock_bank")
+//            .setTable("sys_analyze_dict");
 
 //    private final DBSourceConnector sink = new StarrocksConnector()
 //            .setHost("192.168.10.182")
@@ -89,12 +91,12 @@ public class SeaOtterDBTest {
 //            .setTable("sys_analyze_dict");
 
     private final DBSourceConnector sink = new HologresConnector()
-            .setHost("hgpostcn-cn-kd54j5i9e047-cn-hangzhou.hologres.aliyuncs.com")
-            .setPort(80)
-            .setUsername("BASIC$xy")
-            .setPassword("Xy@123456")
-            .setDatabase("mock_bank")
-            .setTable("sys_analyze_dict");
+            .setHost("192.168.0.42")
+            .setPort(5432)
+            .setUsername("postgres")
+            .setPassword("ybt123456")
+            .setDatabase("test")
+            .setTable("sys_analyze_type");
 
     /**
      * 查询database

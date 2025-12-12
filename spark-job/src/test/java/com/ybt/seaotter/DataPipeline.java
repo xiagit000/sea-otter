@@ -24,16 +24,25 @@ public class DataPipeline {
                 .load();
 
         // 从达梦数据库读取数据
-        Dataset<Row> damengData = spark.read()
-                .format("jdbc")
-                .option("url", "jdbc:dm://172.16.5.101:5236/SYSDBA")
-                .option("dbtable", "BANK_USER")
-                .option("user", "SYSDBA")
-                .option("password", "Dameng111")
-                .load();
+//        Dataset<Row> damengData = spark.read()
+//                .format("jdbc")
+//                .option("url", "jdbc:dm://172.16.5.101:5236/SYSDBA")
+//                .option("dbtable", "BANK_USER")
+//                .option("user", "SYSDBA")
+//                .option("password", "Dameng111")
+//                .load();
+
+        mysqlData.write().format("jdbc")
+                .option("url", "jdbc:postgresql://hgcn-xxx.yyy.zzz:80/db001")
+                .option("driver", "org.postgresql.Driver")
+                .option("dbtable", "tb001")
+                .option("user", "Lxxxxxxxx")
+                .option("password", "Dyyyyyyyyyyyyyyyyyyyy")
+                .mode(SaveMode.Append)
+                .save();
 
         // 将数据存储到 StarRocks
-        saveToStarRocks(mysqlData, "task");
+//        saveToStarRocks(mysqlData, "task");
 //        saveToStarRocks(damengData, "user");
         spark.stop();
     }

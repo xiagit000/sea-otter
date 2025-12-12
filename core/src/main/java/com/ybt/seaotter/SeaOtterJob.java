@@ -3,6 +3,7 @@ package com.ybt.seaotter;
 import com.ybt.seaotter.common.enums.TransmissionMode;
 import com.ybt.seaotter.config.SeaOtterConfig;
 import com.ybt.seaotter.source.connector.SourceConnector;
+import com.ybt.seaotter.source.ddl.DBMigrator;
 
 public class SeaOtterJob {
     private SourceConnector source;
@@ -29,7 +30,8 @@ public class SeaOtterJob {
      * 创建表结构
      */
     public void createTable() {
-        source.getDataDefine(target).getMigrator().migrate();
+//        source.getDataDefine(target).getMigrator().migrate();
+        DBMigrator.migrateDDL(source, target);
     }
 
     /**

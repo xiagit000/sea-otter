@@ -1,15 +1,20 @@
 package com.ybt.seaotter.source.impl.db.mysql;
 
+import com.github.melin.superior.sql.parser.mysql.MySqlHelper;
 import com.ybt.seaotter.common.enums.DataSourceType;
 import com.ybt.seaotter.config.SeaOtterConfig;
+import com.ybt.seaotter.exceptions.SeaOtterException;
 import com.ybt.seaotter.source.connector.DBSourceConnector;
 import com.ybt.seaotter.source.connector.SourceConnector;
 import com.ybt.seaotter.source.ddl.DataDefine;
 import com.ybt.seaotter.source.ddl.DataMigrator;
+import com.ybt.seaotter.source.impl.db.dm.sql.CreateTable;
 import com.ybt.seaotter.source.impl.db.mysql.migration.MysqlDefine;
 import com.ybt.seaotter.source.impl.db.mysql.query.MysqlMeta;
+import com.ybt.seaotter.source.meta.Schema;
 import com.ybt.seaotter.source.meta.database.DBMeta;
 
+import java.sql.*;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -95,6 +100,15 @@ public class MysqlConnector implements DBSourceConnector {
     }
 
     @Override
+    public Connection getConnection() {
+        try {
+            return DriverManager.getConnection(String.format("jdbc:mysql://%s:%s/%s", host, port, database), username, password);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public String getName() {
         return DataSourceType.MYSQL.name();
     }
@@ -128,6 +142,30 @@ public class MysqlConnector implements DBSourceConnector {
     @Override
     public DataDefine getDataDefine(SourceConnector sink) {
         return new MysqlDefine(this, sink);
+    }
+
+    @Override
+    public Schema getSchema() {
+        String sql = String.format("show create table %s", table);
+        String mysqlCreateSql = "";
+        try (Connection connection =  getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            while (resultSet.next()) {
+                // 假设查询的表有两个字段 id 和 name
+                mysqlCreateSql = resultSet.getString(2);
+            }
+        } catch (SQLException e) {
+            throw new SeaOtterException(e.getMessage());
+        }
+        CreateTable statement = new CreateTable((io.github.melin.superior.common.relational.create.CreateTable)
+                MySqlHelper.parseStatement(mysqlCreateSql));
+        return new Schema(getName(), statement);
+    }
+
+    @Override
+    public boolean createSchema(Schema schema) {
+        return false;
     }
 
 }

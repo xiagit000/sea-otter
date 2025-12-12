@@ -2,14 +2,19 @@ package com.ybt.seaotter.source.impl.db.dm;
 
 import com.ybt.seaotter.common.enums.DataSourceType;
 import com.ybt.seaotter.config.SeaOtterConfig;
+import com.ybt.seaotter.exceptions.SeaOtterException;
 import com.ybt.seaotter.source.connector.DBSourceConnector;
 import com.ybt.seaotter.source.connector.SourceConnector;
 import com.ybt.seaotter.source.ddl.DataDefine;
 import com.ybt.seaotter.source.ddl.DataMigrator;
 import com.ybt.seaotter.source.impl.db.dm.migration.DmDefine;
 import com.ybt.seaotter.source.impl.db.dm.query.DmMeta;
+import com.ybt.seaotter.source.impl.db.dm.sql.CreateTable;
+import com.ybt.seaotter.source.impl.db.dm.sql.DmSqlHelper;
+import com.ybt.seaotter.source.meta.Schema;
 import com.ybt.seaotter.source.meta.database.DBMeta;
 
+import java.sql.*;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -94,6 +99,15 @@ public class DmConnector implements DBSourceConnector {
     }
 
     @Override
+    public Connection getConnection() {
+        try {
+            return DriverManager.getConnection(String.format("jdbc:dm://%s:%s/%s", host, port, database), username, password);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public String getName() {
         return DataSourceType.DM.name();
     }
@@ -127,6 +141,29 @@ public class DmConnector implements DBSourceConnector {
     @Override
     public DataDefine getDataDefine(SourceConnector sink) {
         return new DmDefine(this, sink);
+    }
+
+    @Override
+    public Schema getSchema() {
+        String sql = String.format("SELECT DBMS_METADATA.GET_DDL('TABLE', '%s') FROM DUAL", table);
+        String mysqlCreateSql = "";
+        try (Connection connection =  getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            while (resultSet.next()) {
+                // 假设查询的表有两个字段 id 和 name
+                mysqlCreateSql = resultSet.getString(1);
+            }
+        } catch (SQLException e) {
+            throw new SeaOtterException(e.getMessage());
+        }
+        CreateTable statement = DmSqlHelper.parseCreateTableStatement(mysqlCreateSql);
+        return new Schema(getName(), statement);
+    }
+
+    @Override
+    public boolean createSchema(Schema schema) {
+        return false;
     }
 
 }

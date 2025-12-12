@@ -13,6 +13,10 @@ import java.sql.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 该实现已废弃，采用更高层次的抽象实现，后期删除
+ */
+@Deprecated
 public class DmStarrocksTableMigrator implements DataMigrator {
 
     private DmConnector source;

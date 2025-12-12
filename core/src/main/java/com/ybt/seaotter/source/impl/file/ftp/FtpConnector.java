@@ -7,11 +7,15 @@ import com.ybt.seaotter.source.builder.FtpConnectorBuilder;
 import com.ybt.seaotter.source.connector.FileSourceConnector;
 import com.ybt.seaotter.source.connector.SourceConnector;
 import com.ybt.seaotter.source.ddl.DataDefine;
+import com.ybt.seaotter.source.impl.db.dm.sql.ColumnRel;
+import com.ybt.seaotter.source.impl.db.dm.sql.CreateTable;
 import com.ybt.seaotter.source.impl.file.ftp.migration.FtpDefine;
 import com.ybt.seaotter.source.impl.file.ftp.query.FtpDirMeta;
+import com.ybt.seaotter.source.meta.Schema;
 import com.ybt.seaotter.source.meta.file.DirMeta;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class FtpConnector implements FileSourceConnector {
@@ -68,6 +72,8 @@ public class FtpConnector implements FileSourceConnector {
         return new FtpDefine(this, sink);
     }
 
+
+
     public String getHost() {
         return host;
     }
@@ -120,5 +126,20 @@ public class FtpConnector implements FileSourceConnector {
     public FtpConnector setSeparator(String separator) {
         this.separator = separator;
         return this;
+    }
+
+    @Override
+    public Schema getSchema() {
+        CreateTable statement = new CreateTable();
+        List<String> columns = getMeta(null).path(getPath()).columns();
+        List<ColumnRel> columnRels = columns.stream().map(column ->
+                new ColumnRel(false, column, "varchar(500)")).collect(Collectors.toList());
+        statement.setColumnRels(columnRels);
+        return new Schema(getName(), statement);
+    }
+
+    @Override
+    public boolean createSchema(Schema schema) {
+        return false;
     }
 }

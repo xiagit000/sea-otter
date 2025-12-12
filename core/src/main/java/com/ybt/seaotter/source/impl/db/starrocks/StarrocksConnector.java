@@ -10,13 +10,14 @@ import com.ybt.seaotter.source.ddl.DataMigrator;
 import com.ybt.seaotter.source.impl.db.mysql.migration.MysqlDefine;
 import com.ybt.seaotter.source.impl.db.starrocks.migration.StarrocksDefine;
 import com.ybt.seaotter.source.impl.db.starrocks.query.StarrocksMeta;
+import com.ybt.seaotter.source.meta.Schema;
 import com.ybt.seaotter.source.meta.database.DBMeta;
+import com.ybt.seaotter.source.utils.StarRocksUtils;
 import io.github.melin.superior.common.relational.create.CreateTable;
+import io.github.melin.superior.parser.oracle.OracleSqlHelper;
+import io.github.melin.superior.parser.starrocks.StarRocksHelper;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -125,6 +126,15 @@ public class StarrocksConnector implements DBSourceConnector {
         return this;
     }
 
+    @Override
+    public Connection getConnection() {
+        try {
+            return DriverManager.getConnection(String.format("jdbc:mysql://%s:%s/%s", host, rpcPort, database), username, password);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Integer getReplicationNum() {
         return replicationNum;
     }
@@ -166,6 +176,40 @@ public class StarrocksConnector implements DBSourceConnector {
     @Override
     public DataDefine getDataDefine(SourceConnector sink) {
         return new StarrocksDefine(this, sink);
+    }
+
+    @Override
+    public Schema getSchema() {
+        String sql = String.format("show create table %s", table);
+        String mysqlCreateSql = "";
+        try (Connection connection =  getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            while (resultSet.next()) {
+                // 假设查询的表有两个字段 id 和 name
+                mysqlCreateSql = resultSet.getString(2);
+            }
+        } catch (SQLException e) {
+            throw new SeaOtterException(e.getMessage());
+        }
+        String createTableSQL = mysqlCreateSql.replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS");
+        com.ybt.seaotter.source.impl.db.dm.sql.CreateTable statement = new com.ybt.seaotter.source.impl.db.dm.sql.CreateTable(
+                (io.github.melin.superior.common.relational.create.CreateTable) OracleSqlHelper.parseStatement(createTableSQL));
+        return new Schema(getName(), statement);
+    }
+
+    @Override
+    public boolean createSchema(Schema schema) {
+        String createTableSQL = StarRocksUtils.generateTableCreateSql(schema.getStatement(), table,
+                this::convertColumnType, replicationNum);
+        try (Connection sinkConnection =  getConnection();
+            Statement sinkStatement = sinkConnection.createStatement()) {
+            System.out.println(createTableSQL);
+            sinkStatement.execute(createTableSQL);
+        }  catch (SQLException e) {
+            throw new SeaOtterException(e.getMessage());
+        }
+        return false;
     }
 
 }
